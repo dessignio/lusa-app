@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dance Studio Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'brand-primary': '#7249AB',
+            'brand-primary-dark': '#51279B', 
+            'brand-primary-light': '#9E78D9', 
+
+            'brand-accent': '#9397BD',
+            'brand-accent-dark': '#6A6D98',   
+            'brand-accent-light': '#BFC2E2',  
+
+            'brand-background': '#D9C9D3',      
+            'brand-background-light': '#EBE3E7',
+            'brand-background-dark': '#C7B9BF', 
+
+            'brand-text-primary': '#211721',      
+            'brand-text-secondary': '#544D55',    
+            'brand-text-muted': '#7E7580',        
+
+            'brand-body-bg': '#F7F5F7', 
+
+            'brand-success': '#10B981',
+            'brand-success-dark': '#0A8A5F',
+            'brand-success-light': '#D1FAE5', 
+            'brand-error': '#EF4444',
+            'brand-error-dark': '#D02B2B',
+            'brand-error-light': '#FEE2E2', 
+            'brand-warning': '#F59E0B',
+            'brand-warning-dark': '#D98200',
+            'brand-warning-light': '#FEF3C7', 
+            
+            'brand-info-light': '#DBEAFE', 
+            'brand-info': '#3B82F6',       
+
+            'brand-pink-light': '#FCE7F3', 
+            'brand-pink': '#EC4899',       
+
+            'brand-indigo-light': '#E0E7FF', 
+            'brand-indigo': '#6366F1',      
+
+            'brand-neutral': { 
+              50:  '#F9F8F9',
+              100: '#F2F0F3',
+              200: '#E6E2E7', 
+              300: '#DAD5DD', 
+              400: '#B9B3BF',
+              500: '#9891A1',
+              600: '#7A7381',
+              700: '#5C5661',
+              800: '#3D3941',
+              900: '#1F1D21',
+            }
+          }
+        },
+        fontFamily: {
+          sans: ['Open Sans', 'sans-serif'],
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+
+    @layer base {
+        body {
+            font-family: 'Open Sans', sans-serif;
+        }
+    }
+
+    /* General modal animation */
+    @layer components {
+      .modal-overlay-animate {
+        animation: fadeIn 0.15s ease-out forwards;
+      }
+      .modal-content-animate {
+        animation: scaleIn 0.15s ease-out forwards;
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* For Table component checkbox indeterminate state styling */
+    input[type="checkbox"]:indeterminate {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3e%3cpath stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8h8'/%3e%3c/svg%3e");
+      background-color: #7249AB; /* brand-primary */
+      border-color: #7249AB; /* brand-primary */
+    }
+
+    /* Basic Stripe CardElement styling */
+    .StripeElement {
+      box-sizing: border-box;
+      height: 40px;
+      padding: 10px 12px;
+      border: 1px solid #E6E2E7; /* brand-neutral-200 */
+      border-radius: 0.375rem; /* rounded-md */
+      background-color: white;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+      transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+    .StripeElement--focus {
+      border-color: #9E78D9; /* brand-primary-light */
+      box-shadow: 0 0 0 0.2rem rgba(114, 73, 171, .25); /* focus:ring-brand-primary-light with opacity */
+    }
+    .StripeElement--invalid {
+      border-color: #EF4444; /* brand-error */
+    }
+    .StripeElement--webkit-autofill {
+      background-color: #fefde5 !important;
+    }
+  </style>
+  <script src="https://js.stripe.com/v3/"></script> 
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "uuid": "https://esm.sh/uuid@^9.0.1",
+    "react-dom/": "https://esm.sh/react-dom@^18.3.1/",
+    "react/": "https://esm.sh/react@^18.3.1/",
+    "react": "https://esm.sh/react@^18.3.1",
+    "react-router-dom": "https://esm.sh/react-router-dom@^6.25.1",
+    "recharts": "https://esm.sh/recharts@^2.12.7",
+    "@stripe/stripe-js": "https://esm.sh/@stripe/stripe-js@^3.5.0",
+    "@stripe/react-stripe-js": "https://esm.sh/@stripe/react-stripe-js@^2.7.0",
+    "html5-qrcode": "https://esm.sh/html5-qrcode@2.3.8"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <script type="module" src="./index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

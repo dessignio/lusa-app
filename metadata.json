@@ -1,0 +1,8 @@
+{
+  "name": "Dance Studio Admin",
+  "description": "A comprehensive management application for dance studios, handling users, classes, enrollments, billing, communications, reports, and settings.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "prompt": ""
+}
