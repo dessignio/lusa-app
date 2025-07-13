@@ -82,6 +82,15 @@ const SettingsPage: React.FC = () => {
         iconBgColorClass: 'bg-brand-pink-light/30',
         iconColorClass: 'text-brand-pink',
         show: hasPermission('manage_calendar_settings'),
+    },
+    {
+      title: "Payment Gateway",
+      description: "Configure API keys and settings for your payment processor (Stripe).",
+      icon: <BillingIcon />,
+      linkTo: "/settings/payments",
+      iconBgColorClass: 'bg-brand-purple-light/30',
+      iconColorClass: 'text-brand-purple',
+      show: hasPermission('manage_general_settings'), // Reuse permission or create a new one
     }
   ];
 

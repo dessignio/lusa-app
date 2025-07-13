@@ -42,6 +42,9 @@ export const API_ENDPOINTS = {
   // Client Portal Endpoints
   CLIENT_LOGIN: `${API_BASE_URL}/portal/auth/login`,
   CLIENT_PROFILE_ME: `${API_BASE_URL}/portal/me`,
+  
+  // Settings Endpoints
+  SETTINGS_STRIPE: `${API_BASE_URL}/settings/stripe`,
 };
 
 

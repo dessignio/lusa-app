@@ -583,3 +583,10 @@ export interface ClientLoginResponse {
   access_token: string;
   profile: ClientProfileResponse;
 }
+
+export interface StripeProductSettings {
+  enrollmentProductId: string;
+  enrollmentPriceId: string;
+  auditionProductId: string;
+  auditionPriceId: string;
+}

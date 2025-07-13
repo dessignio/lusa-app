@@ -147,3 +147,6 @@ export const CameraIcon: React.FC<React.HTMLAttributes<HTMLElement>> = ({ classN
 export const TimesCircleIcon: React.FC<React.HTMLAttributes<HTMLElement>> = ({ className, ...props }) => (
     <i className={`fa-solid fa-circle-xmark ${className || ''}`} {...props}></i>
 );
+export const LockIcon: React.FC<React.HTMLAttributes<HTMLElement>> = ({ className, ...props }) => (
+    <i className={`fa-solid fa-lock ${className || ''}`} {...props}></i>
+);

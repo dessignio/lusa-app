@@ -7,7 +7,8 @@ import {
   Enrollment, Absence, CreateAbsencePayload, AttendanceRecord, AbsenceStatus, GeneralSettings, CalendarSettings, SchoolEvent,
   Announcement, AnnouncementFormData,
   Payment, PaymentFormData, Invoice, MockStripeSubscription, StudentFormData, FinancialMetrics, AdminUserCredentials, LoginResponse,
-  Prospect, ProspectFormData, ApproveProspectDto, Parent, ParentFormData, ClientLoginResponse, ClientProfileResponse
+  Prospect, ProspectFormData, ApproveProspectDto, Parent, ParentFormData, ClientLoginResponse, ClientProfileResponse,
+  StripeProductSettings
 } from '../types';
 import { showToast } from '../utils';
 
@@ -770,3 +771,17 @@ export const approveProspect = (prospectId: string, approvalData: ApproveProspec
     body: JSON.stringify(approvalData),
   });
 };
+
+// --- Stripe Settings API ---
+
+export const getStripeSettings = async (): Promise<StripeProductSettings & { publicKey: string }> => {
+  return request<StripeProductSettings & { publicKey: string }>(API_ENDPOINTS.SETTINGS_STRIPE);
+};
+
+export const updateStripeSettings = async (settings: Partial<StripeProductSettings & { publicKey: string }>): Promise<void> => {
+  return request<void>(API_ENDPOINTS.SETTINGS_STRIPE, {
+    method: 'POST',
+    body: JSON.stringify(settings),
+  });
+};
+

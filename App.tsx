@@ -53,6 +53,7 @@ const MembershipPlanListPage = React.lazy(() => import('./pages/settings/Members
 const MembershipPlanFormPage = React.lazy(() => import('./pages/settings/MembershipPlanFormPage'));
 const GeneralSettingsPage = React.lazy(() => import('./pages/settings/GeneralSettingsPage'));
 const CalendarSettingsPage = React.lazy(() => import('./pages/settings/CalendarSettingsPage'));
+const PaymentSettingsPage = React.lazy(() => import('./pages/settings/PaymentSettingsPage'));
 
 // Report Pages
 const NewStudentsReportPage = React.lazy(() => import('./pages/reports/NewStudentsReportPage'));
@@ -183,6 +184,7 @@ const AdminRoutes: React.FC = () => {
                     <Route path="/settings/membership-plans" element={auth.hasPermission('manage_membership_plans') ? <MembershipPlanListPage /> : <Navigate to="/access-denied" />} />
                     <Route path="/settings/membership-plans/new" element={auth.hasPermission('manage_membership_plans') ? <MembershipPlanFormPage /> : <Navigate to="/access-denied" />} />
                     <Route path="/settings/membership-plans/edit/:planId" element={auth.hasPermission('manage_membership_plans') ? <MembershipPlanFormPage /> : <Navigate to="/access-denied" />} />
+                    <Route path="/settings/payments" element={auth.hasPermission('manage_general_settings') ? <PaymentSettingsPage /> : <Navigate to="/access-denied" />} />
                 </Routes>
             </Suspense>
         </Layout>
