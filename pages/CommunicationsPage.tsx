@@ -19,9 +19,9 @@ const initialFormData: AnnouncementFormData = {
 
 const categoryOptions: { value: AnnouncementCategory; label: string }[] = [
   { value: 'General', label: 'General' },
-  { value: 'Eventos', label: 'Eventos' },
-  { value: 'Horarios', label: 'Horarios' },
-  { value: 'Urgente', label: 'Urgente' },
+  { value: 'Events', label: 'Events' },
+  { value: 'Schedules', label: 'Schedules' },
+  { value: 'Urgent', label: 'Urgent' },
 ];
 
 const CommunicationsPage: React.FC = () => {

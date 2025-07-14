@@ -46,7 +46,7 @@ const PortalHeader: React.FC<PortalHeaderProps> = ({ onMenuButtonClick, isSideba
                 {isSidebarOpen ? <TimesIcon className="w-6 h-6" /> : <BarsIcon className="w-6 h-6" />}
                 </button>
                 <div className="font-semibold text-brand-primary">
-                    {selectedStudent ? `Portal de ${selectedStudent.firstName}` : 'Portal del Cliente'}
+                    {selectedStudent ? `${selectedStudent.firstName}'s Portal` : 'Client Portal'}
                 </div>
             </div>
             

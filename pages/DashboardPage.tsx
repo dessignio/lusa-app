@@ -18,21 +18,21 @@ const DashboardPage: React.FC = () => {
       {/* Welcome Header and Quick Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-brand-text-primary">¡Hola, {user?.firstName || 'Admin'}!</h1>
-          <p className="text-brand-text-secondary mt-1">Aquí tienes un resumen de la actividad de tu estudio.</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-brand-text-primary">Hello, {user?.firstName || 'Admin'}!</h1>
+          <p className="text-brand-text-secondary mt-1">Here's a summary of your studio's activity.</p>
         </div>
         <div className="flex items-center space-x-2 mt-3 sm:mt-0">
           {hasPermission('manage_students') && (
             <NavLink to="/users/students/new">
               <Button variant="primary" size="sm" leftIcon={<UserPlusIcon className="w-4 h-4" />}>
-                Inscribir Alumno
+                Enroll Student
               </Button>
             </NavLink>
           )}
            {hasPermission('process_payments') && (
              <NavLink to="/billing">
               <Button variant="outline" size="sm" leftIcon={<DollarSignIcon className="w-4 h-4" />}>
-                Registrar Pago
+                Record Payment
               </Button>
             </NavLink>
            )}

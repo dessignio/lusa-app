@@ -25,8 +25,8 @@ const Clock: React.FC<{className?: string}> = ({ className }) => {
 
     return (
         <div className={`text-center ${className || ''}`}>
-            <span className="font-medium">{time.toLocaleDateString(undefined, dateOptions)}</span>
-            <span className="font-mono ml-2 tracking-wider">{time.toLocaleTimeString(undefined, timeOptions)}</span>
+            <span className="font-medium">{time.toLocaleDateString('en-US', dateOptions)}</span>
+            <span className="font-mono ml-2 tracking-wider">{time.toLocaleTimeString('en-US', timeOptions)}</span>
         </div>
     );
 };

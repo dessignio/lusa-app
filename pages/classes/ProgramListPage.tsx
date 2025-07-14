@@ -152,7 +152,7 @@ const ProgramListPage: React.FC = () => {
           onConfirm={executeDeleteProgram}
           title="Confirm Program Deletion"
           message={<>Are you sure you want to delete program <strong>{programToDelete.name}</strong>? This action cannot be undone and might affect related class offerings.</>}
-          confirmationText="CONFIRMAR"
+          confirmationText="DELETE"
           confirmButtonText="Delete Program"
           confirmButtonVariant="danger"
         />

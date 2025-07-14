@@ -65,7 +65,7 @@ const StudentLifecycleWidget: React.FC = () => {
                         <li key={student.id} className="text-sm text-brand-text-secondary p-2 bg-brand-neutral-50 rounded-md">
                             {student.firstName} {student.lastName}
                              <span className="text-xs text-brand-text-muted ml-2">
-                                {student.dateOfBirth ? `(${new Date(student.dateOfBirth).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })})` : ''}
+                                {student.dateOfBirth ? `(${new Date(student.dateOfBirth).toLocaleDateString('en-US', { day: 'numeric', month: 'long' })})` : ''}
                             </span>
                         </li>
                     ))}
@@ -78,14 +78,14 @@ const StudentLifecycleWidget: React.FC = () => {
     
 
     return (
-        <Card title="Comunidad y Retención">
+        <Card title="Community & Retention">
             {isLoading ? (
                  <div className="text-center p-4 text-brand-text-secondary">Loading student data...</div>
             ) : (
                  <div className="space-y-4">
-                    {renderStudentList("Próximos Cumpleaños", upcomingBirthdays, <CakeIcon className="text-brand-pink" />, "No hay cumpleaños esta semana.")}
+                    {renderStudentList("Upcoming Birthdays", upcomingBirthdays, <CakeIcon className="text-brand-pink" />, "No birthdays this week.")}
                     <div className="border-t border-brand-neutral-200"></div>
-                    {renderStudentList("Nuevos Alumnos (Últ. 7 días)", newStudents, <UserPlusIcon className="text-brand-success" />, "No hay nuevos alumnos esta semana.")}
+                    {renderStudentList("New Students (Last 7 days)", newStudents, <UserPlusIcon className="text-brand-success" />, "No new students this week.")}
                 </div>
             )}
         </Card>

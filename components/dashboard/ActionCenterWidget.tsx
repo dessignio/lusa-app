@@ -68,7 +68,7 @@ export const ActionCenterWidget: React.FC = () => {
   };
 
   return (
-    <Card title="Agenda de Hoy" icon={<CalendarIcon className="w-5 h-5 text-brand-primary" />} collapsible={true} defaultCollapsed={false}>
+    <Card title="Today's Schedule" icon={<CalendarIcon className="w-5 h-5 text-brand-primary" />} collapsible={true} defaultCollapsed={false}>
         {renderContent()}
     </Card>
   );

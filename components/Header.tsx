@@ -106,7 +106,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuButtonClick, isSidebarOpen }) => 
             </NavLink>
             <button onClick={logout} className="flex items-center space-x-1 hover:text-brand-primary-light text-xs sm:text-sm">
               <LogoutIcon className="w-3 h-3 sm:w-4 sm:h-4"/>
-              <span className="hidden sm:inline">Signout</span>
+              <span className="hidden sm:inline">Sign Out</span>
             </button>
           </div>
         </div>

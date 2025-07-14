@@ -32,7 +32,7 @@ export interface ScheduleItem {
     colorClass: string; // For UI styling based on program/category
 }
 
-export type StudentGeneralLevel = 'Principiante' | 'Intermedio' | 'Avanzado' | 'Profesional';
+export type StudentGeneralLevel = 'Beginner' | 'Intermediate' | 'Advanced' | 'Professional';
 export type ProgramName = string; 
 export type DancerLevelName = string; 
 
@@ -44,7 +44,7 @@ export interface Student {
     firstName: string;
     lastName: string;
     dateOfBirth: string;
-    gender: 'Masculino' | 'Femenino' | 'Otro' | 'Prefiero no decirlo';
+    gender: 'Male' | 'Female' | 'Other' | 'Prefer not to say';
     profilePictureUrl: string;
     username?: string; 
     email: string;
@@ -67,7 +67,7 @@ export interface Student {
     membershipPlanName?: string; 
     membershipStartDate: string | null; 
     membershipRenewalDate: string | null; 
-    status: 'Activo' | 'Inactivo' | 'Suspendido';
+    status: 'Active' | 'Inactive' | 'Suspended';
     notes?: string;
     personalGoals?: string;
     stripeCustomerId?: string; 
@@ -150,7 +150,7 @@ export interface ClassFilters {
     sortBy: string; 
 }
 
-export type AbsenceStatus = 'Notificada' | 'Justificada' | 'No Justificada';
+export type AbsenceStatus = 'Notified' | 'Justified' | 'Unjustified';
 
 export interface Absence {
   id: string;
@@ -267,7 +267,7 @@ export interface Program {
   levels?: string[]; 
 }
 
-export type StudentStatus = 'Activo' | 'Inactivo' | 'Suspendido';
+export type StudentStatus = 'Active' | 'Inactive' | 'Suspended';
 
 export interface Address { 
   street: string;
@@ -404,7 +404,7 @@ export interface CalendarSettings {
   updatedAt?: string;
 }
 
-export type AnnouncementCategory = 'Eventos' | 'Horarios' | 'General' | 'Urgente';
+export type AnnouncementCategory = 'Events' | 'Schedules' | 'General' | 'Urgent';
 
 export interface Announcement {
   id: string;

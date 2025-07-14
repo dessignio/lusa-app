@@ -100,26 +100,26 @@ export function getLocalDateString(date: Date = new Date()): string {
 
 
 export function getDerivedGeneralLevel(student: Student | null): StudentGeneralLevel {
-    if (!student || !student.program) return 'Principiante';
+    if (!student || !student.program) return 'Beginner';
     switch (student.program) {
         case 'New Stars':
         case 'Little Giants':
-            return 'Principiante';
+            return 'Beginner';
         case 'Dancers':
-            if (!student.dancerLevel) return 'Intermedio'; 
+            if (!student.dancerLevel) return 'Intermediate'; 
             switch (student.dancerLevel) {
                 case 'Explorer 1':
                 case 'Explorer 2':
-                    return 'Intermedio';
+                    return 'Intermediate';
                 case 'Explorer 3':
-                    return 'Avanzado';
+                    return 'Advanced';
                 case 'Deep':
-                    return 'Profesional';
+                    return 'Professional';
                 default:
-                    return 'Intermedio';
+                    return 'Intermediate';
             }
         default:
-            return 'Principiante';
+            return 'Beginner';
     }
 }
 
@@ -151,7 +151,7 @@ export function requestMembershipUpdate(
     }
 
     if (currentHasMadeUpdate) {
-        toastFn("Ya has solicitado una actualización de membresía este mes. Podrás solicitar otra el próximo mes.", "info");
+        toastFn("You have already requested a membership update this month. You can request another one next month.", "info");
         canProceed = false; 
     } else {
         console.log(`Monthly membership update attempt for month: ${currentMonth}. Confirmation pending.`);
@@ -173,7 +173,7 @@ export function canMakeMonthlyInitiatingClassChange(
     }
 
     if (currentHasMadeChange) {
-        toastFn("Ya has realizado tu cambio de clases mensual (agregar o eliminar una clase). Podrás realizar otro el próximo mes.", "info");
+        toastFn("You have already made your monthly class change (adding or dropping a class). You can make another change next month.", "info");
         return false; 
     }
     return true; 
@@ -188,10 +188,10 @@ export function recordClassScheduleChange(): {hasMadeChange: boolean, lastChange
 
 export function getLevelOrder(level: StudentGeneralLevel): number {
     switch (level) {
-        case 'Principiante': return 1;
-        case 'Intermedio': return 2;
-        case 'Avanzado': return 3;
-        case 'Profesional': return 4;
+        case 'Beginner': return 1;
+        case 'Intermediate': return 2;
+        case 'Advanced': return 3;
+        case 'Professional': return 4;
         default: return 0;
     }
 }
@@ -209,11 +209,11 @@ export function getMembershipPlanUIDetails(
 
     if (plan) {
         // Create a generic description based on plan properties
-        const description = `This plan offers ${plan.classesPerWeek} class(es) per week for $${parseFloat(String(plan.monthlyPrice)).toFixed(2)} per month.`;
+        const description = `This plan offers ${plan.classesPerWeek} class(es) per week for ${parseFloat(String(plan.monthlyPrice)).toFixed(2)} per month.`;
         return {
             name: plan.name,
-            price: `$${parseFloat(String(plan.monthlyPrice)).toFixed(2)}/mes`,
-            classes: `${plan.classesPerWeek} clase(s)/semana`,
+            price: `${parseFloat(String(plan.monthlyPrice)).toFixed(2)}/month`,
+            classes: `${plan.classesPerWeek} class(es)/week`,
             description: description // Or any other description field if added to MembershipPlanDefinition
         };
     }
@@ -232,7 +232,7 @@ export function formatTime(timeStr: string): string {
     let hours = parseInt(hoursStr, 10);
     const minutes = parseInt(minutesStr, 10);
 
-    if (isNaN(hours) || isNaN(minutes)) return 'Hora Inválida';
+    if (isNaN(hours) || isNaN(minutes)) return 'Invalid Time';
 
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
@@ -249,7 +249,7 @@ export function formatTime(timeStr: string): string {
  * @returns Formatted time range string (e.g., "5:00 PM - 6:30 PM").
  */
 export function formatTimeRange(startTimeStr: string, endTimeStr: string): string {
-    if (!startTimeStr || !endTimeStr) return 'Horario no especificado';
+    if (!startTimeStr || !endTimeStr) return 'Schedule not specified';
     return `${formatTime(startTimeStr)} - ${formatTime(endTimeStr)}`;
 }
 

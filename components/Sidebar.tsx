@@ -8,7 +8,7 @@ interface NavItemProps {
   icon: React.ReactNode;
   label: string;
   onClick?: () => void;
-  isNavLinkEnd?: boolean; // For v6 NavLink 'end' prop, similar to 'exact' for root
+  isNavLinkEnd?: boolean;
 }
 
 const NavItem: React.FC<NavItemProps> = ({ to, icon, label, onClick, isNavLinkEnd = false }) => {
@@ -20,7 +20,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, onClick, isNavLinkEn
     <NavLink
       to={to}
       onClick={onClick}
-      end={isNavLinkEnd} // Use 'end' prop for v6
+      end={isNavLinkEnd}
       className={({ isActive }) => `${baseStyles} ${isActive ? activeSpecificStyles : inactiveSpecificStyles}`}
     >
       {icon}
@@ -28,7 +28,6 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, onClick, isNavLinkEn
     </NavLink>
   );
 };
-
 
 interface SidebarProps {
   isOpen: boolean;
@@ -48,7 +47,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     { to: "/reports", icon: <ChartBarIcon className="w-5 h-5" />, label: "Reports", show: hasPermission(['view_all_reports', 'view_student_reports', 'view_attendance_reports', 'view_enrollment_reports', 'view_financial_reports', 'view_membership_reports']) },
     { to: "/settings", icon: <SettingsIcon className="w-5 h-5" />, label: "Settings", show: hasPermission(['manage_general_settings', 'manage_calendar_settings', 'manage_membership_plans', 'manage_roles_permissions', 'manage_admin_users']) },
   ].filter(item => item.show);
-
 
   return (
     <>
@@ -76,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         </div>
         <nav className="space-y-1">
           {navItems.map((item) => (
-            <NavItem key={item.to} {...item} onClick={toggleSidebar} /> // Close sidebar on nav item click
+            <NavItem key={item.to} {...item} onClick={toggleSidebar} />
           ))}
         </nav>
       </div>

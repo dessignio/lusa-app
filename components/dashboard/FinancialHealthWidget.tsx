@@ -95,11 +95,11 @@ const AgedAccountsContent: React.FC = () => {
         <div className="space-y-3">
              <div className="grid grid-cols-2 gap-2 text-center">
                 <div className="bg-brand-error-light/50 p-2 rounded">
-                    <p className="text-xs text-brand-error-dark">Total Vencido</p>
+                    <p className="text-xs text-brand-error-dark">Total Overdue</p>
                     <p className="font-bold text-lg text-brand-error-dark">${data.totalOutstanding.toFixed(2)}</p>
                 </div>
                  <div className="bg-brand-neutral-200 p-2 rounded">
-                    <p className="text-xs text-brand-text-secondary">Balance Total</p>
+                    <p className="text-xs text-brand-text-secondary">Total Balance</p>
                     <p className="font-bold text-lg text-brand-text-primary">${data.balanceIncludingCredits.toFixed(2)}</p>
                 </div>
             </div>
@@ -253,9 +253,9 @@ export const FinancialHealthWidget: React.FC = () => {
   return (
      <div className="bg-white rounded-lg shadow-md">
       <div className="flex items-center border-b border-brand-neutral-200 px-4">
-        <TabButton tabId="revenue" title="Ingresos" icon={<ChartBarIcon className="w-4 h-4" />} />
-        <TabButton tabId="agedAccounts" title="Cuentas Vencidas" icon={<DollarSignIcon className="w-4 h-4" />} />
-        <TabButton tabId="memberships" title="Membresías" icon={<IdCardIcon className="w-4 h-4" />} />
+        <TabButton tabId="revenue" title="Revenue" icon={<ChartBarIcon className="w-4 h-4" />} />
+        <TabButton tabId="agedAccounts" title="Aged Accounts" icon={<DollarSignIcon className="w-4 h-4" />} />
+        <TabButton tabId="memberships" title="Memberships" icon={<IdCardIcon className="w-4 h-4" />} />
       </div>
       <div className="p-4 min-h-[200px]">
         {renderContent()}

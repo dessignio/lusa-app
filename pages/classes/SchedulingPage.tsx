@@ -446,7 +446,7 @@ const SchedulingPage: React.FC = () => {
             <div className="flex justify-between items-center mb-4">
               <Button onClick={() => handleMonthChange(-1)} size="sm" variant="outline">&larr; Previous</Button>
               <h3 className="text-lg font-semibold text-brand-text-primary">
-                {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                {currentDate.toLocaleString('en-US', { month: 'long', year: 'numeric' })}
               </h3>
               <Button onClick={() => handleMonthChange(1)} size="sm" variant="outline">Next &rarr;</Button>
             </div>
@@ -525,7 +525,7 @@ const SchedulingPage: React.FC = () => {
                                 <div className="font-semibold truncate">{item.name}</div>
                                 <div className="truncate">{item.time}</div>
                                 <div className="truncate text-xs">Room: {item.room}</div>
-                                <div className="truncate text-xs">Prof: {item.professor}</div>
+                                <div className="truncate text-xs">Instructor: {item.professor}</div>
                                 </NavLink>
                             ))}
                             {(filteredSchedule[day.value]?.[slotTime] || []).length === 0 && <div className="h-full w-full"></div>}

@@ -78,7 +78,7 @@ export const DynamicKPIs: React.FC = () => {
                 ]);
 
                 // Calculate Active Students
-                const activeStudentsCount = students.filter(s => s.status === 'Activo').length;
+                const activeStudentsCount = students.filter(s => s.status === 'Active').length;
 
                 // Calculate Class Occupancy
                 const applicableOfferings = offerings.filter(o => o.capacity > 0);
@@ -120,7 +120,7 @@ export const DynamicKPIs: React.FC = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <KPIStat 
-        title="Alumnos Activos"
+        title="Active Students"
         value={String(metrics.activeStudents.value)}
         change={metrics.activeStudents.change}
         isPositive={true}
@@ -128,7 +128,7 @@ export const DynamicKPIs: React.FC = () => {
         sparklineData={generateSparklineData()}
       />
       <KPIStat 
-        title="Ocupación Media"
+        title="Average Occupancy"
         value={`${metrics.classOccupancy.value}%`}
         change={metrics.classOccupancy.change}
         isPositive={true}
@@ -136,7 +136,7 @@ export const DynamicKPIs: React.FC = () => {
         sparklineData={generateSparklineData()}
       />
        <KPIStat 
-        title="Programas Totales"
+        title="Total Programs"
         value={String(metrics.totalPrograms.value)}
         change={metrics.totalPrograms.change}
         isPositive={true}
@@ -144,7 +144,7 @@ export const DynamicKPIs: React.FC = () => {
         sparklineData={generateSparklineData()}
       />
       <KPIStat 
-        title="Instructores Totales"
+        title="Total Instructors"
         value={String(metrics.totalInstructors.value)}
         change={metrics.totalInstructors.change}
         isPositive={true}

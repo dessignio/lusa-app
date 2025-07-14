@@ -49,24 +49,24 @@ export const API_ENDPOINTS = {
 
 
 export const STUDENT_STATUS_OPTIONS: { value: StudentStatus, label: string }[] = [
-    { value: "Activo", label: "Activo" },
-    { value: "Inactivo", label: "Inactivo" },
-    { value: "Suspendido", label: "Suspendido" },
+    { value: "Active", label: "Active" },
+    { value: "Inactive", label: "Inactive" },
+    { value: "Suspended", label: "Suspended" },
 ];
 
 export const GENDER_OPTIONS: { value: Student['gender'], label: string }[] = [
-    { value: "Femenino", label: "Femenino" },
-    { value: "Masculino", label: "Masculino" },
-    { value: "Otro", label: "Otro" },
-    { value: "Prefiero no decirlo", label: "Prefiero no decirlo" },
+    { value: "Female", label: "Female" },
+    { value: "Male", label: "Male" },
+    { value: "Other", label: "Other" },
+    { value: "Prefer not to say", label: "Prefer not to say" },
 ];
 
 
 export const STUDENT_GENERAL_LEVEL_OPTIONS: { value: StudentGeneralLevel, label: string }[] = [
-    { value: "Principiante", label: "Principiante" },
-    { value: "Intermedio", label: "Intermedio" },
-    { value: "Avanzado", label: "Avanzado" },
-    { value: "Profesional", label: "Profesional" },
+    { value: "Beginner", label: "Beginner" },
+    { value: "Intermediate", label: "Intermediate" },
+    { value: "Advanced", label: "Advanced" },
+    { value: "Professional", label: "Professional" },
 ];
 
 export const ADMIN_USER_STATUS_OPTIONS: { value: AdminUserStatus, label: string }[] = [
@@ -132,13 +132,13 @@ export const AVAILABLE_PERMISSIONS: PermissionDefinition[] = [
 ];
 
 export const ABSENCE_REASON_OPTIONS: string[] = [
-    "Enfermedad",
-    "Lesión",
-    "Cita Médica",
-    "Viaje Familiar",
-    "Evento Escolar",
-    "Compromiso Personal",
-    "Otro (especificar)",
+    "Sickness",
+    "Injury",
+    "Medical Appointment",
+    "Family Trip",
+    "School Event",
+    "Personal Commitment",
+    "Other (specify)",
 ];
 
 export const ATTENDANCE_STATUS_OPTIONS: { value: AttendanceRecord['status'], label: string }[] = [

@@ -197,7 +197,7 @@ const InstructorListPage: React.FC = () => {
           onConfirm={executeDeleteInstructor}
           title="Confirm Instructor Deletion"
           message={<>Are you sure you want to delete instructor <strong>{instructorToDelete.firstName} {instructorToDelete.lastName}</strong>? This action cannot be undone.</>}
-          confirmationText="CONFIRMAR"
+          confirmationText="DELETE"
           confirmButtonText="Delete Instructor"
           confirmButtonVariant="danger"
         />
