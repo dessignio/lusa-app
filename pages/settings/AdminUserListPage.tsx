@@ -34,16 +34,23 @@ const AdminUserListPage: React.FC = () => {
   const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
   const [adminUserToDelete, setAdminUserToDelete] = useState<AdminUser | null>(null);
 
-  const { hasPermission } = useAuth();
+  const { hasPermission, currentUser } = useAuth();
   const canManage = hasPermission('manage_admin_users');
 
   const fetchPageData = useCallback(async () => {
+    if (!currentUser?.studioId) {
+      const msg = "No se pudo determinar el estudio del usuario.";
+      setError(msg);
+      showToast(msg, 'error');
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
       const [adminUsersData, rolesData] = await Promise.all([
-        getAdminUsers(),
-        getRoles()
+        getAdminUsers(currentUser.studioId),
+        getRoles(currentUser.studioId)
       ]);
       setAdminUsers(adminUsersData.map(user => ({
         ...user,
@@ -58,7 +65,7 @@ const AdminUserListPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
     fetchPageData();
@@ -70,9 +77,14 @@ const AdminUserListPage: React.FC = () => {
   };
 
   const executeDeleteAdminUser = async () => {
-    if (!adminUserToDelete) return;
+    if (!adminUserToDelete || !currentUser?.studioId) {
+      showToast('No se pudo eliminar el usuario administrador.', 'error');
+      setIsConfirmDeleteModalOpen(false);
+      setAdminUserToDelete(null);
+      return;
+    }
     try {
-      await deleteAdminUser(adminUserToDelete.id);
+      await deleteAdminUser(currentUser.studioId, adminUserToDelete.id);
       fetchPageData(); 
       setSelectedAdminUserIds(prev => {
         const newSet = new Set(prev);
@@ -134,6 +146,10 @@ const AdminUserListPage: React.FC = () => {
   };
 
   const handleBulkUpdate = async (action: 'status' | 'role') => {
+    if (!currentUser?.studioId) {
+      showToast('No se pudo determinar el estudio para la actualización masiva.', 'error');
+      return;
+    }
     if (selectedAdminUserIds.size === 0) {
       showToast('Please select at least one admin user.', 'info');
       return;
@@ -171,14 +187,14 @@ const AdminUserListPage: React.FC = () => {
                 setIsBulkUpdatingStatus(false);
                 return;
             }
-            await bulkUpdateAdminUsersStatus(idsToUpdate, validStatusForApiCall);
+            await bulkUpdateAdminUsersStatus(currentUser.studioId, idsToUpdate, validStatusForApiCall);
         } else if (action === 'role') {
             if (selectedBulkRole === '') { 
                 showToast('Internal error: Role not validated for API call.', 'error');
                 setIsBulkUpdatingRole(false);
                 return;
             }
-            await bulkUpdateAdminUsersRole(idsToUpdate, selectedBulkRole);
+            await bulkUpdateAdminUsersRole(currentUser.studioId, idsToUpdate, selectedBulkRole);
         }
         showToast(`Successfully updated ${action} for ${idsToUpdate.length} admin user(s).`, 'success');
         fetchPageData(); 
