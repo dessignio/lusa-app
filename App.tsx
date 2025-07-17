@@ -26,6 +26,7 @@ const ReportsPage = React.lazy(() => import('./pages/ReportsPage'));
 const SettingsPage = React.lazy(() => import('./pages/SettingsPage'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 
+
 // User Pages
 const StudentListPage = React.lazy(() => import('./pages/users/StudentListPage'));
 const StudentFormPage = React.lazy(() => import('./pages/users/StudentFormPage'));
@@ -81,6 +82,8 @@ const StudentSelectorPage = React.lazy(() => import('./pages/portal/StudentSelec
 
 // Scanner Page
 const AttendanceScannerPage = React.lazy(() => import('./pages/AttendanceScannerPage'));
+
+const StripeReturnPage = React.lazy(() => import('./pages/StripeReturnPage'));
 
 
 // --- Suspense Fallback Component ---
