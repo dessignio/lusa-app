@@ -22,15 +22,16 @@ export class AnnouncementService {
   ): Promise<Announcement> {
     const studioId = user.studioId;
     if (!studioId) {
-        throw new BadRequestException('User is not associated with a studio.');
+      throw new BadRequestException('User is not associated with a studio.');
     }
-    const newAnnouncement: Announcement = this.announcementRepository.create(
-      { ...createAnnouncementDto, studioId },
-    );
+    const newAnnouncement: Announcement = this.announcementRepository.create({
+      ...createAnnouncementDto,
+      studioId,
+    });
     const savedAnnouncement =
       await this.announcementRepository.save(newAnnouncement);
 
-    this.notificationGateway.sendNotificationToAll({
+    this.notificationGateway.sendNotificationToStudio(studioId, {
       title: `New Announcement: ${savedAnnouncement.title.substring(0, 30)}...`,
       message: `Category: ${savedAnnouncement.category}. Click to view details.`,
       type: savedAnnouncement.isImportant ? 'warning' : 'info',
@@ -50,8 +51,14 @@ export class AnnouncementService {
     });
   }
 
-  async findOne(id: string, user: Partial<AdminUser>): Promise<Announcement | null> {
-    const announcement = await this.announcementRepository.findOneBy({ id, studioId: user.studioId });
+  async findOne(
+    id: string,
+    user: Partial<AdminUser>,
+  ): Promise<Announcement | null> {
+    const announcement = await this.announcementRepository.findOneBy({
+      id,
+      studioId: user.studioId,
+    });
     return announcement;
   }
 

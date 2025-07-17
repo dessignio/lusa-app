@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import {
   Controller,
   Post,
@@ -24,7 +26,7 @@ import {
   Patch,
   UseGuards,
 } from '@nestjs/common';
-import { StripeService } from './stripe.service';
+import { StripeService } from './stripe.service'; // <-- CORRECCIÓN AQUÍ
 import {
   CreateStripeSubscriptionDto,
   FinancialMetricsDto,
@@ -43,9 +45,17 @@ import { Public } from 'src/auth/decorators/public.decorator';
 import * as https from 'https';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Request } from 'express';
+import { AdminUser } from 'src/admin-user/admin-user.entity';
 
 interface RequestWithRawBody extends ExpressRequest {
   rawBody?: any;
+}
+
+interface JwtPayload {
+  userId: string;
+  username: string;
+  roleId: string;
+  studioId: string;
 }
 
 @Controller('stripe')
@@ -58,36 +68,45 @@ interface RequestWithRawBody extends ExpressRequest {
   }),
 )
 export class StripeController {
+  logger: any;
   constructor(private readonly stripeService: StripeService) {}
 
   @Public()
   @Post('create-audition-payment')
   createAuditionPaymentIntent(
     @Body() paymentDto: CreateAuditionPaymentDto,
+    @Req() req: Request,
   ): Promise<{ clientSecret: string }> {
-    return this.stripeService.createAuditionPaymentIntent(paymentDto);
+    const studioId = (req.user as JwtPayload).studioId;
+    return this.stripeService.createAuditionPaymentIntent(paymentDto, studioId);
   }
 
   @Get('metrics')
-  getFinancialMetrics(): Promise<FinancialMetricsDto> {
-    return this.stripeService.getFinancialMetrics();
+  getFinancialMetrics(@Req() req: Request): Promise<FinancialMetricsDto> {
+    const studioId = (req.user as JwtPayload).studioId;
+    return this.stripeService.getFinancialMetrics(studioId);
   }
 
   @Post('subscriptions')
   createSubscription(
     @Body() createSubDto: CreateStripeSubscriptionDto,
+    @Req() req: Request,
   ): Promise<StripeSubscriptionDetails> {
-    return this.stripeService.createSubscription(createSubDto);
+    const studioId = (req.user as JwtPayload).studioId;
+    return this.stripeService.createSubscription(createSubDto, studioId);
   }
 
   @Patch('subscriptions/:subscriptionId/change-plan')
   changeSubscriptionPlan(
     @Param('subscriptionId') subscriptionId: string,
     @Body() changePlanDto: ChangeStripeSubscriptionPlanDto,
+    @Req() req: Request,
   ): Promise<StripeSubscriptionDetails> {
+    const studioId = (req.user as JwtPayload).studioId;
     return this.stripeService.updateSubscription(
       subscriptionId,
       changePlanDto.newPriceId,
+      studioId,
     );
   }
 
@@ -96,10 +115,13 @@ export class StripeController {
   updatePaymentMethod(
     @Param('studentId', ParseUUIDPipe) studentId: string,
     @Body() updateDto: UpdatePaymentMethodDto,
+    @Req() req: Request,
   ): Promise<{ success: boolean }> {
+    const studioId = (req.user as JwtPayload).studioId;
     return this.stripeService.updatePaymentMethod(
       studentId,
       updateDto.paymentMethodId,
+      studioId,
     );
   }
 
@@ -108,12 +130,41 @@ export class StripeController {
     return this.stripeService.recordManualPayment(recordPaymentDto);
   }
 
+  @Post('connect/account')
+  async createConnectAccount(@Req() req: Request) {
+    const studioId = (req.user as JwtPayload).studioId;
+    const studio = await this.stripeService.getStudioWithAdminUser(studioId);
+    if (!studio) {
+      throw new NotFoundException(`Studio with ID ${studioId} not found.`);
+    }
+    return this.stripeService.createConnectAccount(studio);
+  }
+
+  @Get('connect/account-link')
+  async createAccountLink(@Req() req: Request): Promise<{ url: string }> {
+    const studioId = (req.user as JwtPayload).studioId;
+    const studio = await this.stripeService.getStudioWithAdminUser(studioId);
+    if (!studio || !studio.stripeAccountId) {
+      throw new BadRequestException(
+        'Stripe Connect account not configured for this studio.',
+      );
+    }
+    const url = await this.stripeService.createAccountLink(
+      studio.stripeAccountId,
+    );
+    return { url };
+  }
+
   @Get('students/:studentId/stripe-subscription')
   async getStudentSubscription(
     @Param('studentId', ParseUUIDPipe) studentId: string,
+    @Req() req: Request,
   ): Promise<StripeSubscriptionDetails> {
-    const subscription =
-      await this.stripeService.getStudentSubscription(studentId);
+    const studioId = (req.user as JwtPayload).studioId;
+    const subscription = await this.stripeService.getStudentSubscription(
+      studentId,
+      studioId,
+    );
 
     if (!subscription) {
       throw new NotFoundException(
@@ -127,8 +178,14 @@ export class StripeController {
   async getInvoicePdf(
     @Param('invoiceId') invoiceId: string,
     @Res({ passthrough: true }) res: ExpressResponse,
+    @Req() req: Request, // Añadido para obtener studioId
   ): Promise<StreamableFile> {
-    const pdfUrl = await this.stripeService.getInvoicePdfUrl(invoiceId);
+    const studioId = (req.user as JwtPayload).studioId;
+    // Asumiendo que getInvoicePdfUrl ahora necesita studioId para cuentas Connect
+    const pdfUrl = await this.stripeService.getInvoicePdfUrl(
+      invoiceId,
+      studioId,
+    );
 
     if (!pdfUrl) {
       throw new NotFoundException(
@@ -193,23 +250,36 @@ export class StripeController {
   }
 
   @Get('payments')
-  getStudentPayments(@Query('studentId', ParseUUIDPipe) studentId: string) {
-    return this.stripeService.getPaymentsForStudent(studentId);
+  getStudentPayments(
+    @Query('studentId', ParseUUIDPipe) studentId: string,
+    @Req() req: Request,
+  ) {
+    const studioId = (req.user as JwtPayload).studioId;
+    return this.stripeService.getPaymentsForStudent(studentId, studioId);
   }
 
   @Get('invoices')
-  getStudentInvoices(@Query('studentId', ParseUUIDPipe) studentId: string, @Req() req: Request) {
-    return this.stripeService.getInvoicesForStudent(studentId, req.user);
+  getStudentInvoices(
+    @Query('studentId', ParseUUIDPipe) studentId: string,
+    @Req() req: Request,
+  ) {
+    return this.stripeService.getInvoicesForStudent(
+      studentId,
+      req.user as Partial<AdminUser>,
+    );
   }
 
   @Delete('subscriptions/:subscriptionId/cancel')
   async cancelSubscription(
     @Param('subscriptionId') subscriptionId: string,
     @Body('studentId', ParseUUIDPipe) studentId: string,
+    @Req() req: Request,
   ): Promise<StripeSubscriptionDetails> {
+    const studioId = (req.user as JwtPayload).studioId;
     const subscription = await this.stripeService.cancelSubscription(
       studentId,
       subscriptionId,
+      studioId,
     );
     if (!subscription) {
       throw new InternalServerErrorException(
@@ -250,12 +320,23 @@ export class StripeController {
       );
     }
 
+    const connectedAccountId = event.account;
+
     switch (event.type) {
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
         const subscription = event.data.object;
-        await this.stripeService.handleSubscriptionUpdated(subscription);
+        if (!connectedAccountId) {
+          this.logger.warn(
+            `Subscription webhook received without an account ID: ${event.id}`,
+          );
+          break;
+        }
+        await this.stripeService.handleSubscriptionUpdated(
+          subscription,
+          connectedAccountId,
+        );
         break;
       }
       case 'invoice.payment_succeeded': {
@@ -266,6 +347,21 @@ export class StripeController {
       case 'invoice.payment_failed': {
         const invoice = event.data.object;
         await this.stripeService.handleInvoicePaymentFailed(invoice);
+        break;
+      }
+      case 'account.updated': {
+        const account = event.data.object;
+        await this.stripeService.handleAccountUpdated(account);
+        break;
+      }
+      case 'account.application.authorized': {
+        const account = event.data.object as unknown as Stripe.Account;
+        await this.stripeService.handleAccountApplicationAuthorized(account);
+        break;
+      }
+      case 'account.external_account.created': {
+        const account = event.data.object as unknown as Stripe.Account;
+        await this.stripeService.handleAccountExternalAccountCreated(account);
         break;
       }
       default:

@@ -18,7 +18,7 @@ import { ClassOffering } from 'src/class-offering/class-offering.entity';
 import { Studio } from '../studio/studio.entity';
 
 @Entity('enrollments')
-@Index(['studentId', 'classOfferingId'], { unique: true }) // Prevent duplicate enrollments
+@Index(['studentId', 'classOfferingId', 'studioId'], { unique: true }) // Prevent duplicate enrollments
 export class Enrollment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -29,7 +29,6 @@ export class Enrollment {
   @ManyToOne(() => Studio)
   @JoinColumn({ name: 'studio_id' })
   studio: Studio;
-
 
   @Column({ type: 'uuid' })
   studentId: string;

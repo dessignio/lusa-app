@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -58,6 +57,7 @@ import { CalendarSettings } from './calendar-settings/calendar-settings.entity';
 import { Prospect } from './prospect/prospect.entity'; // Added Prospect Entity
 import { Parent } from './parent/parent.entity';
 import { Studio } from './studio/studio.entity';
+import { StripeSettings } from './stripe/stripe-settings.entity';
 
 @Module({
   imports: [
@@ -101,6 +101,7 @@ import { Studio } from './studio/studio.entity';
           Prospect,
           Parent,
           Studio,
+          StripeSettings,
         ],
 
         // Sincroniza la base de datos.
