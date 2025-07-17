@@ -233,6 +233,7 @@ const App: React.FC = () => {
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/access-denied" element={<AdminAccessDeniedPage />} />
                       <Route path="/portal/login" element={<ClientLoginPage />} />
+                      <Route path="/stripe-return" element={<StripeReturnPage />} />
                       <Route path="/attendance-scanner" element={<AttendanceScannerPage />} />
 
                       {/* Client Portal Routes */}

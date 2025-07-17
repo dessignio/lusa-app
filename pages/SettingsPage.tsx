@@ -91,6 +91,15 @@ const SettingsPage: React.FC = () => {
       iconBgColorClass: 'bg-brand-purple-light/30',
       iconColorClass: 'text-brand-purple',
       show: hasPermission('manage_general_settings'), // Reuse permission or create a new one
+    },
+    {
+      title: "Payouts & Billing",
+      description: "Connect your Stripe account to accept payments and manage payouts.",
+      icon: <BillingIcon />,
+      linkTo: "/settings/payouts-billing",
+      iconBgColorClass: 'bg-brand-blue-light/30',
+      iconColorClass: 'text-brand-blue',
+      show: hasPermission('manage_general_settings'),
     }
   ];
 
