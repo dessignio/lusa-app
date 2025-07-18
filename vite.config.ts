@@ -12,6 +12,16 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      // --- AÑADE ESTA SECCIÓN ---
+      server: {
+        // Permite que Vite sea accesible desde tu red local y ngrok
+        host: true, 
+        
+        // Permite explícitamente las URLs de ngrok
+        // El punto al principio funciona como un comodín (*.ngrok-free.app)
+        allowedHosts: ['.ngrok-free.app'], 
       }
+      // -------------------------
     };
 });

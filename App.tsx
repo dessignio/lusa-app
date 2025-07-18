@@ -85,6 +85,12 @@ const AttendanceScannerPage = React.lazy(() => import('./pages/AttendanceScanner
 
 const StripeReturnPage = React.lazy(() => import('./pages/StripeReturnPage'));
 
+// --- AÑADE ESTAS LÍNEAS ---
+const PublicPricingPage = React.lazy(() => import('./pages/PublicPricingPage'));
+const SignUpPage = React.lazy(() => import('./pages/SignUpPage'));
+const SignUpSuccessPage = React.lazy(() => import('./pages/SignUpSuccessPage'));
+// -------------------------
+
 
 // --- Suspense Fallback Component ---
 const SuspenseFallback: React.FC = () => (
@@ -237,6 +243,9 @@ const App: React.FC = () => {
                       <Route path="/access-denied" element={<AdminAccessDeniedPage />} />
                       <Route path="/portal/login" element={<ClientLoginPage />} />
                       <Route path="/stripe-return" element={<StripeReturnPage />} />
+                      <Route path="/pricing" element={<PublicPricingPage />} />
+                      <Route path="/signup" element={<SignUpPage />} />
+                      <Route path="/signup-success" element={<SignUpSuccessPage />} />
                       <Route path="/attendance-scanner" element={<AttendanceScannerPage />} />
 
                       {/* Client Portal Routes */}
