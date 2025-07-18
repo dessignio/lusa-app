@@ -68,7 +68,7 @@ const PublicPricingPage: React.FC = () => {
       {/* Header Section */}
       <div className="py-16 sm:py-24 text-center bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight">Jackrabbit Dance Pricing</h1>
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight">CoppeliApp Dance Pricing</h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg sm:text-xl text-gray-600">
             Affordable Pricing for Your Studio. Coppeliapp provides flexible subscription options to fit your studio’s needs. Choose pricing based on student count.
           </p>
