@@ -55,6 +55,8 @@ const MembershipPlanFormPage = React.lazy(() => import('./pages/settings/Members
 const GeneralSettingsPage = React.lazy(() => import('./pages/settings/GeneralSettingsPage'));
 const CalendarSettingsPage = React.lazy(() => import('./pages/settings/CalendarSettingsPage'));
 const PaymentSettingsPage = React.lazy(() => import('./pages/settings/PaymentSettingsPage'));
+const PayoutsBillingPage = React.lazy(() => import('./pages/settings/PayoutsBillingPage'));
+const SettingsLayout = React.lazy(() => import('./pages/settings/Layout'));
 
 // Report Pages
 const NewStudentsReportPage = React.lazy(() => import('./pages/reports/NewStudentsReportPage'));
@@ -181,19 +183,23 @@ const AdminRoutes: React.FC = () => {
                     <Route path="/reports/financial-payments" element={auth.hasPermission(['view_all_reports', 'view_financial_reports']) ? <FinancialPaymentsReportPage /> : <Navigate to="/access-denied" />} />
                     <Route path="/reports/financial-dashboard" element={auth.hasPermission(['view_all_reports', 'view_financial_reports']) ? <FinancialDashboardPage /> : <Navigate to="/access-denied" />} />
                     <Route path="/reports/membership-distribution" element={auth.hasPermission(['view_all_reports', 'view_membership_reports']) ? <MembershipPlanDistributionPage /> : <Navigate to="/access-denied" />} />
-                    <Route path="/settings" element={auth.hasPermission(['manage_general_settings', 'manage_calendar_settings', 'manage_membership_plans', 'manage_roles_permissions', 'manage_admin_users']) ? <SettingsPage /> : <Navigate to="/access-denied" />} />
-                    <Route path="/settings/general" element={auth.hasPermission('manage_general_settings') ? <GeneralSettingsPage /> : <Navigate to="/access-denied" />} />
-                    <Route path="/settings/calendar" element={auth.hasPermission('manage_calendar_settings') ? <CalendarSettingsPage /> : <Navigate to="/access-denied" />} /> 
-                    <Route path="/settings/roles" element={auth.hasPermission('manage_roles_permissions') ? <RoleListPage /> : <Navigate to="/access-denied" />} />
-                    <Route path="/settings/roles/new" element={auth.hasPermission('manage_roles_permissions') ? <RoleFormPage /> : <Navigate to="/access-denied" />} />
-                    <Route path="/settings/roles/edit/:roleId" element={auth.hasPermission('manage_roles_permissions') ? <RoleFormPage /> : <Navigate to="/access-denied" />} />
-                    <Route path="/settings/admin-users" element={auth.hasPermission('manage_admin_users') ? <AdminUserListPage /> : <Navigate to="/access-denied" />} />
-                    <Route path="/settings/admin-users/new" element={auth.hasPermission('manage_admin_users') ? <AdminUserFormPage /> : <Navigate to="/access-denied" />} />
-                    <Route path="/settings/admin-users/edit/:adminUserId" element={auth.hasPermission('manage_admin_users') ? <AdminUserFormPage /> : <Navigate to="/access-denied" />} />
-                    <Route path="/settings/membership-plans" element={auth.hasPermission('manage_membership_plans') ? <MembershipPlanListPage /> : <Navigate to="/access-denied" />} />
-                    <Route path="/settings/membership-plans/new" element={auth.hasPermission('manage_membership_plans') ? <MembershipPlanFormPage /> : <Navigate to="/access-denied" />} />
-                    <Route path="/settings/membership-plans/edit/:planId" element={auth.hasPermission('manage_membership_plans') ? <MembershipPlanFormPage /> : <Navigate to="/access-denied" />} />
-                    <Route path="/settings/payments" element={auth.hasPermission('manage_general_settings') ? <PaymentSettingsPage /> : <Navigate to="/access-denied" />} />
+                    
+                    <Route path="/settings" element={<SettingsLayout />}>
+                        <Route index element={auth.hasPermission(['manage_general_settings', 'manage_calendar_settings', 'manage_membership_plans', 'manage_roles_permissions', 'manage_admin_users']) ? <SettingsPage /> : <Navigate to="/access-denied" />} />
+                        <Route path="general" element={auth.hasPermission('manage_general_settings') ? <GeneralSettingsPage /> : <Navigate to="/access-denied" />} />
+                        <Route path="calendar" element={auth.hasPermission('manage_calendar_settings') ? <CalendarSettingsPage /> : <Navigate to="/access-denied" />} /> 
+                        <Route path="roles" element={auth.hasPermission('manage_roles_permissions') ? <RoleListPage /> : <Navigate to="/access-denied" />} />
+                        <Route path="roles/new" element={auth.hasPermission('manage_roles_permissions') ? <RoleFormPage /> : <Navigate to="/access-denied" />} />
+                        <Route path="roles/edit/:roleId" element={auth.hasPermission('manage_roles_permissions') ? <RoleFormPage /> : <Navigate to="/access-denied" />} />
+                        <Route path="admin-users" element={auth.hasPermission('manage_admin_users') ? <AdminUserListPage /> : <Navigate to="/access-denied" />} />
+                        <Route path="admin-users/new" element={auth.hasPermission('manage_admin_users') ? <AdminUserFormPage /> : <Navigate to="/access-denied" />} />
+                        <Route path="admin-users/edit/:adminUserId" element={auth.hasPermission('manage_admin_users') ? <AdminUserFormPage /> : <Navigate to="/access-denied" />} />
+                        <Route path="membership-plans" element={auth.hasPermission('manage_membership_plans') ? <MembershipPlanListPage /> : <Navigate to="/access-denied" />} />
+                        <Route path="membership-plans/new" element={auth.hasPermission('manage_membership_plans') ? <MembershipPlanFormPage /> : <Navigate to="/access-denied" />} />
+                        <Route path="membership-plans/edit/:planId" element={auth.hasPermission('manage_membership_plans') ? <MembershipPlanFormPage /> : <Navigate to="/access-denied" />} />
+                        <Route path="payments" element={auth.hasPermission('manage_general_settings') ? <PaymentSettingsPage /> : <Navigate to="/access-denied" />} />
+                        <Route path="payouts-billing" element={auth.hasPermission('manage_general_settings') ? <PayoutsBillingPage /> : <Navigate to="/access-denied" />} />
+                    </Route>
                 </Routes>
             </Suspense>
         </Layout>

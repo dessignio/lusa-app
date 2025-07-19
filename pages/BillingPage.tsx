@@ -277,6 +277,7 @@ const MembershipManagementCard: React.FC<{
     }
     setIsLoading(true);
     try {
+      console.log("Fetching subscription for student ID:", student.id); // Add this line
       const sub = await getStudentStripeSubscription(student.id);
       setStripeSubscription(sub);
     } catch (error) {

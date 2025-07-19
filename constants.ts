@@ -38,6 +38,7 @@ export const API_ENDPOINTS = {
   STRIPE_STUDENT_BASE: `${API_BASE_URL}/stripe/students`,
   STRIPE_METRICS: `${API_BASE_URL}/stripe/metrics`, 
   STRIPE_CREATE_AUDITION_PAYMENT: `${API_BASE_URL}/stripe/create-audition-payment`,
+  STRIPE_CONNECT_ACCOUNT_STATUS: `${API_BASE_URL}/studios/:studioId/stripe-status`,
 
   // Client Portal Endpoints
   CLIENT_LOGIN: `${API_BASE_URL}/portal/auth/login`,

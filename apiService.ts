@@ -1,6 +1,6 @@
 
 
-import { API_ENDPOINTS, API_BASE_URL } from '../constants';
+import { API_ENDPOINTS, API_BASE_URL } from './constants';
 import {
   Student, Instructor, Role, MembershipPlanDefinition, StudentStatus, Program, RevenueDataPoint, AlertItem, TodoItem, AgedAccountSummary,
   AdminUser, AdminUserFormData, AdminUserStatus, ClassOffering, ClassOfferingFormData,
@@ -9,7 +9,7 @@ import {
   Payment, PaymentFormData, Invoice, MockStripeSubscription, StudentFormData, FinancialMetrics, AdminUserCredentials, LoginResponse,
   Prospect, ProspectFormData, ApproveProspectDto, Parent, ParentFormData, ClientLoginResponse, ClientProfileResponse
 } from '../types';
-import { showToast } from '../utils';
+import { showToast } from './utils';
 
 // Generic request helper
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
@@ -683,20 +683,21 @@ export const createAuditionPaymentIntent = (prospectData: Pick<ProspectFormData,
   });
 };
 
-"""// --- Stripe Connect API Functions ---
+// --- Stripe Connect API Functions ---
 
-export const getStripeAccountStatus = (): Promise<{
+export const getStripeAccountStatus = (studioId: string): Promise<{
   status: 'unverified' | 'incomplete' | 'active';
   details_submitted: boolean;
   payouts_enabled: boolean;
   url?: string;
 }> => {
+  const url = API_ENDPOINTS.STRIPE_CONNECT_ACCOUNT_STATUS.replace(':studioId', studioId);
   return request<{
     status: 'unverified' | 'incomplete' | 'active';
     details_submitted: boolean;
     payouts_enabled: boolean;
     url?: string;
-  }>(API_ENDPOINTS.STRIPE_CONNECT_ACCOUNT_STATUS);
+  }>(url);
 };
 
 export const createStripeAccountLink = (): Promise<{ url: string }> => {
