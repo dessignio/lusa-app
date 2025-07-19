@@ -93,6 +93,14 @@ export const getClientProfile = (): Promise<ClientProfileResponse> => {
   return request<ClientProfileResponse>(API_ENDPOINTS.CLIENT_PROFILE_ME);
 };
 
+// --- Public API Functions ---
+export const registerStudio = (data: any): Promise<any> => {
+  return request<any>(API_ENDPOINTS.PUBLIC_REGISTER_STUDIO, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+};
+
 
 // Auth Service Functions
 export const loginUser = (credentials: AdminUserCredentials): Promise<LoginResponse> => {

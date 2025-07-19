@@ -130,7 +130,7 @@ const PublicPricingPage: React.FC = () => {
               </div>
 
               <NavLink 
-                to={`/signup?plan=${billingCycle === 'annual' ? plan.annualPriceId : plan.monthlyPriceId}`}
+                to={`/signup?plan=${billingCycle === 'annual' ? plan.annualPriceId : plan.monthlyPriceId}&billingCycle=${billingCycle}`}
                 className="mt-10 block w-full text-center rounded-lg px-6 py-3 text-lg font-semibold text-white transition-transform transform hover:scale-105"
                 style={{ backgroundColor: plan.recommended ? '#4F46E5' : '#111827' }} // Using brand.primary for recommended
               >

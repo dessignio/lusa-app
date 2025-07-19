@@ -28,8 +28,8 @@ export class Studio {
   @Column({ unique: true })
   name: string;
 
-  @Column({ name: 'owner_id' })
-  ownerId: string;
+  @Column({ name: 'owner_id', nullable: true }) // Made nullable for initial creation
+  ownerId: string | null;
 
   @OneToOne(() => AdminUser)
   @JoinColumn({ name: 'owner_id' })
@@ -45,6 +45,15 @@ export class Studio {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @Column({ name: 'stripe_customer_id', type: 'varchar', nullable: true })
+  stripeCustomerId: string | null;
+
+  @Column({ name: 'stripe_subscription_id', type: 'varchar', nullable: true })
+  stripeSubscriptionId: string | null;
+
+  @Column({ name: 'subscription_status', type: 'varchar', nullable: true })
+  subscriptionStatus: string | null;
 
   @OneToMany(() => AdminUser, (adminUser) => adminUser.studio)
   adminUsers: AdminUser[];
@@ -73,6 +82,12 @@ export class Studio {
   @OneToMany(() => Payment, (payment) => payment.studio)
   payments: Payment[];
 
+  @OneToMany(() => ScheduledClassSlot, (slot) => slot.studio)
+  scheduledClassSlots: ScheduledClassSlot[];
+
+  @OneToMany(() => SchoolEvent, (event) => event.studio)
+  schoolEvents: SchoolEvent[];
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
@@ -81,6 +96,4 @@ export class Studio {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
-  scheduledClassSlots: any;
-  schoolEvents: any;
 }

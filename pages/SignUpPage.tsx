@@ -1,17 +1,36 @@
 import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-// 1. Importa 'Elements' y 'loadStripe'
+import { useSearchParams, useNavigate } from 'react-router-dom'; // 1. Importa useNavigate
 import { CardElement, useStripe, useElements, Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { showToast } from '../utils';
 
-// 2. Carga tu llave pública de Stripe FUERA de tus componentes
-//    Reemplaza 'pk_test_...' con tu llave publicable real
-const stripePromise = loadStripe('pk_test_YOUR_PUBLISHABLE_KEY');
+// Carga tu llave pública de Stripe desde las variables de entorno
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-// 3. Tu formulario se convierte en un componente hijo para poder usar los hooks de Stripe
+// 2. Esta es la función que se comunica con tu backend
+async function registerStudio(registrationData: any) {
+  // Asegúrate de que esta URL coincida con la de tu endpoint en el backend
+  const response = await fetch('https://api.adalusa.art/public/register-studio', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(registrationData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    // Lanza un error para que el bloque 'catch' en handleSubmit lo capture
+    throw new Error(errorData.message || 'Failed to register the studio.');
+  }
+
+  return response.json();
+}
+
+// Tu formulario ahora es un componente hijo
 const SignUpForm: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate(); // 3. Inicializa el hook para redirigir
   const stripe = useStripe();
   const elements = useElements();
 
@@ -29,34 +48,55 @@ const SignUpForm: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!stripe || !elements) {
+    if (!stripe || !elements || !planId || !billingCycle) {
+      showToast('An error occurred: Missing plan information.', 'error');
       return;
     }
 
     setLoading(true);
 
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) {
+    try {
+      const cardElement = elements.getElement(CardElement);
+      if (!cardElement) {
+        throw new Error('Card details not found.');
+      }
+
+      // Crea el PaymentMethod con los datos de facturación
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+        billing_details: {
+          name: formData.directorName,
+          email: formData.email,
+        },
+      });
+
+      if (error) {
+        // Si Stripe da un error, lo lanzamos para que lo capture el catch
+        throw error;
+      }
+
+      // Prepara todos los datos para enviar al backend
+      const registrationData = {
+        ...formData,
+        planId,
+        billingCycle,
+        paymentMethodId: paymentMethod.id,
+      };
+
+      // Llama a la función que se comunica con tu backend
+      await registerStudio(registrationData);
+
+      showToast('Registration successful!', 'success');
+      navigate('/signup-success'); // Redirige al usuario a la página de éxito
+
+    } catch (apiError: any) {
+      // Este bloque captura cualquier error, ya sea de Stripe o de tu API
+      const errorMessage = apiError.message || 'Failed to register. Please try again.';
+      showToast(errorMessage, 'error');
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
-      card: cardElement,
-    });
-
-    if (error) {
-      showToast(error.message || 'An error occurred.', 'error');
-      setLoading(false);
-      return;
-    }
-
-    // Here you would call your backend endpoint
-    // await registerStudio(formData, planId, billingCycle, paymentMethod.id);
-
-    showToast('Registration successful!', 'success');
-    setLoading(false);
   };
 
   return (
@@ -64,7 +104,8 @@ const SignUpForm: React.FC = () => {
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center mb-6">Register Your Studio</h2>
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+          {/* ... (el resto de tus inputs del formulario se mantiene igual) ... */}
+           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Director's Name</label>
             <input
               type="text"
@@ -111,7 +152,7 @@ const SignUpForm: React.FC = () => {
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-gray-400"
-            disabled={loading}
+            disabled={!stripe || loading}
           >
             {loading ? 'Processing...' : 'Complete Registration'}
           </button>

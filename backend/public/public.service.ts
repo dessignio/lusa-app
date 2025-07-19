@@ -1,12 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, EntityManager } from 'typeorm';
 import { Studio } from '../studio/studio.entity';
 import { AdminUser } from '../admin-user/admin-user.entity';
 import { Role } from '../role/role.entity';
 import { StripeService } from '../stripe/stripe.service';
 import { RegisterStudioDto } from './dto/register-studio.dto';
 import * as bcrypt from 'bcrypt';
+import { PermissionKeyValues } from 'src/role/types/permission-key.type';
 
 @Injectable()
 export class PublicService {
@@ -18,47 +19,79 @@ export class PublicService {
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
     private readonly stripeService: StripeService,
+    private readonly entityManager: EntityManager, // Inject EntityManager for transactions
   ) {}
 
   async registerStudio(registerStudioDto: RegisterStudioDto) {
-    const { directorName, email, password, studioName, planId, billingCycle, paymentMethodId } = registerStudioDto;
+    const { directorName, email, password, studioName, planId, paymentMethodId } = registerStudioDto;
 
+    // Check for existing user outside of the transaction for a quick failure
     const existingUser = await this.adminUserRepository.findOne({ where: { email } });
     if (existingUser) {
-      throw new Error('User with this email already exists');
+      throw new ConflictException('User with this email already exists');
     }
 
+    // 1. Create Stripe Customer
     const stripeCustomer = await this.stripeService.createCustomer(directorName, email);
 
-    const subscription = await this.stripeService.createSubscription(
-      stripeCustomer.id,
-      planId,
-      billingCycle,
-      paymentMethodId,
-    );
+    // Start a database transaction
+    return this.entityManager.transaction(async transactionalEntityManager => {
+      try {
+        // 2. Create and save the Studio first to get its ID
+        let studio = transactionalEntityManager.create(Studio, {
+            name: studioName,
+            stripeCustomerId: stripeCustomer.id,
+            isActive: true,
+        });
+        studio = await transactionalEntityManager.save(studio);
 
-    const studio = new Studio();
-    studio.name = studioName;
-    studio.stripeCustomerId = stripeCustomer.id;
-    const newStudio = await this.studioRepository.save(studio);
+        // 3. Create the Stripe Subscription
+        const subscription = await this.stripeService.createStudioSubscription(
+          stripeCustomer.id,
+          planId,
+          paymentMethodId,
+        );
 
-    const role = new Role();
-    role.name = 'Administrator';
-    role.permissions = ['all']; // Or a list of all permissions
-    role.studio = newStudio;
-    const newRole = await this.roleRepository.save(role);
+        // 4. Update the studio with subscription details
+        studio.stripeSubscriptionId = subscription.id;
+        studio.subscriptionStatus = subscription.status;
+        studio = await transactionalEntityManager.save(studio);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+        // 5. Create the Administrator Role for this specific studio
+        const role = transactionalEntityManager.create(Role, {
+            name: 'Administrator',
+            permissions: [...PermissionKeyValues], // Assign all permissions
+            studio: studio,
+        });
+        const newRole = await transactionalEntityManager.save(role);
 
-    const adminUser = new AdminUser();
-    adminUser.username = email; // Use email as username
-    adminUser.name = directorName;
-    adminUser.email = email;
-    adminUser.password = hashedPassword;
-    adminUser.role = newRole;
-    adminUser.studio = newStudio;
-    await this.adminUserRepository.save(adminUser);
+        // 6. Create the Admin User (Studio Director)
+        const adminUser = transactionalEntityManager.create(AdminUser, {
+            username: email, // Use email as username
+            email: email,
+            password: password, // Pass the plain password, the entity will hash it
+            firstName: directorName.split(' ')[0],
+            lastName: directorName.split(' ').slice(1).join(' ') || directorName.split(' ')[0],
+            roleId: newRole.id,
+            studio: studio,
+            status: 'active',
+        });
+        const newAdminUser = await transactionalEntityManager.save(adminUser);
 
-    return { message: 'Studio registered successfully' };
+        // 7. Link the owner to the studio
+        studio.ownerId = newAdminUser.id;
+        await transactionalEntityManager.save(studio);
+
+        return { message: 'Studio registered successfully' };
+
+      } catch (error) {
+        // The transaction will be automatically rolled back
+        console.error("Error during studio registration transaction:", error);
+        if (error.code === '23505') { // Handle unique constraint violation
+            throw new ConflictException('A studio with this name or details already exists.');
+        }
+        throw new InternalServerErrorException('An unexpected error occurred during registration.');
+      }
+    });
   }
 }

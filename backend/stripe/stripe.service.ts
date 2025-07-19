@@ -65,6 +65,57 @@ export class StripeService {
     });
   }
 
+  async createCustomer(
+    name: string,
+    email: string,
+  ): Promise<Stripe.Customer> {
+    try {
+      const customer = await this.stripe.customers.create({
+        name: name,
+        email: email,
+      });
+      return customer;
+    } catch (error) {
+      this.logger.error(
+        `Failed to create Stripe customer for ${email}: ${(error as Error).message}`,
+      );
+      throw new InternalServerErrorException(
+        'Could not create Stripe customer.',
+      );
+    }
+  }
+
+  async createStudioSubscription(
+    customerId: string,
+    priceId: string,
+    paymentMethodId: string,
+  ): Promise<Stripe.Subscription> {
+    try {
+      await this.stripe.paymentMethods.attach(paymentMethodId, {
+        customer: customerId,
+      });
+
+      await this.stripe.customers.update(customerId, {
+        invoice_settings: { default_payment_method: paymentMethodId },
+      });
+
+      const subscription = await this.stripe.subscriptions.create({
+        customer: customerId,
+        items: [{ price: priceId }],
+        expand: ['latest_invoice.payment_intent'],
+      });
+
+      return subscription;
+    } catch (error) {
+      this.logger.error(
+        `Failed to create studio subscription for customer ${customerId}: ${(error as Error).message}`,
+      );
+      throw new InternalServerErrorException(
+        'Could not create Stripe subscription.',
+      );
+    }
+  }
+
   async createConnectAccount(studio: Studio): Promise<Studio> {
     try {
       const account = await this.stripe.accounts.create({
