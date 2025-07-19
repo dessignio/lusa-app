@@ -51,6 +51,7 @@ export class PublicService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const adminUser = new AdminUser();
+    adminUser.username = email; // Use email as username
     adminUser.name = directorName;
     adminUser.email = email;
     adminUser.password = hashedPassword;
