@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 import { ProspectFormData } from '../../types'; 
 import Input from '../../components/forms/Input';
 import Button from '../../components/forms/Button';
@@ -27,6 +28,7 @@ const ProspectFormContent: React.FC = () => {
 
     const stripe = useStripe();
     const elements = useElements();
+    const { user } = useAuth(); // Get user from auth context
   
     const [formData, setFormData] = useState<ProspectFormData>(initialProspectFormData);
     const [formErrors, setFormErrors] = useState<Partial<Record<keyof ProspectFormData, string>>>({});
@@ -142,7 +144,7 @@ const ProspectFormContent: React.FC = () => {
             // 3. Confirm Card Payment using the created paymentMethod.id
             const paymentResult = await stripe.confirmCardPayment(clientSecret, {
                 payment_method: paymentMethod.id,
-            });
+            }, { stripeAccount: user.studioId });
             
             if (paymentResult.error) {
                 throw new Error(paymentResult.error.message || "Payment failed.");
