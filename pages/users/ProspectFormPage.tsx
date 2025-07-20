@@ -144,7 +144,7 @@ const ProspectFormContent: React.FC = () => {
             // 3. Confirm Card Payment using the created paymentMethod.id
             const paymentResult = await stripe.confirmCardPayment(clientSecret, {
                 payment_method: paymentMethod.id,
-            }, { stripeAccount: user.studioId });
+            }, { stripeAccount: user.stripeAccountId });
             
             if (paymentResult.error) {
                 throw new Error(paymentResult.error.message || "Payment failed.");

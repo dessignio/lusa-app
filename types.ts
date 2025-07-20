@@ -255,7 +255,7 @@ export interface AdminUserCredentials {
 
 export interface LoginResponse {
   access_token: string;
-  user: AdminUser;
+  user: AdminUser & { stripeAccountId?: string };
   permissions: PermissionKey[];
 }
 
