@@ -752,6 +752,12 @@ export const getStripeAccountStatus = (studioId: string): Promise<{
   }>(url);
 };
 
+export const createStripeConnectAccount = (): Promise<Studio> => {
+  return request<Studio>(API_ENDPOINTS.STRIPE_CONNECT_ACCOUNT, {
+    method: 'POST',
+  });
+};
+
 export const createStripeAccountLink = (): Promise<{ url: string }> => {
   return request<{ url: string }>(API_ENDPOINTS.STRIPE_CONNECT_ACCOUNT_LINK, {
     method: 'POST',

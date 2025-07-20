@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { getStripeAccountStatus, createStripeAccountLink } from '../../services/apiService';
+import React, { useState, useEffect, useCallback } from 'react';
+import { getStripeAccountStatus, createStripeAccountLink, createStripeConnectAccount } from '../../services/apiService';
 import { showToast } from '../../utils';
 import { useAuth } from '../../contexts/AuthContext'; // 1. Importa tu hook de autenticación
 
@@ -18,35 +18,41 @@ const PayoutsBillingPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchAccountStatus = async () => {
-      // 3. Verifica que tienes el studioId antes de hacer la llamada
-      if (!user?.studioId) {
-        setLoading(false); 
-        // No establecemos un error aquí, simplemente esperamos a que 'user' se cargue
-        return; 
-      }
-      
-      console.log(`Fetching Stripe account status for studio: ${user.studioId}`);
-      try {
-        // 4. Pasa el studioId a la función de la API
-        const data = await getStripeAccountStatus(user.studioId); 
-        console.log('Received data:', data);
-        setAccountStatus(data);
-      } catch (err: any) {
-        console.error('Error fetching status:', err);
-        setError(err.message || 'Failed to fetch Stripe account status.');
-        showToast(err.message || 'Failed to fetch Stripe account status.', 'error');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchAccountStatus = useCallback(async () => {
+    if (!user?.studioId) {
+      setLoading(false);
+      return;
+    }
 
+    console.log(`Fetching Stripe account status for studio: ${user.studioId}`);
+    try {
+      const data = await getStripeAccountStatus(user.studioId);
+      console.log('Received data:', data);
+      setAccountStatus(data);
+    } catch (err: any) {
+      console.error('Error fetching status:', err);
+      setError(err.message || 'Failed to fetch Stripe account status.');
+      showToast(err.message || 'Failed to fetch Stripe account status.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [user]); // Dependency array for useCallback
+
+  useEffect(() => {
     fetchAccountStatus();
-  }, [user]); // 5. El useEffect ahora depende de 'user' para ejecutarse
+  }, [fetchAccountStatus]); // Dependency array for useEffect
 
   const handleConnectClick = async () => {
     try {
+      if (accountStatus?.status === 'unverified') {
+        // First, create the Stripe Connect account
+        await createStripeConnectAccount();
+        showToast('Stripe account created. Redirecting to onboarding...', 'info');
+        // Re-fetch status to get the new stripeAccountId, then proceed to create link
+        await fetchAccountStatus(); // This will update accountStatus state
+      }
+
+      // Now, create the account link (for both unverified and incomplete statuses)
       const { url } = await createStripeAccountLink();
       window.location.href = url;
     } catch (err: any) {

@@ -590,3 +590,10 @@ export interface StripeProductSettings {
   auditionProductId: string;
   auditionPriceId: string;
 }
+
+export interface Studio {
+  id: string;
+  name: string;
+  stripeAccountId: string | null;
+  // Add other fields if they are relevant for frontend consumption
+}
