@@ -45,7 +45,7 @@ export class AuthService {
     };
     return {
       access_token: this.jwtService.sign(payload),
-      user: { ...user, stripeAccountId: stripeAccountId }, // Add stripeAccountId to the user object in the response
+      user: { ...user, stripeAccountId: stripeAccountId }, // Ensure stripeAccountId is included in the user object
     };
   }
 }

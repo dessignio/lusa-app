@@ -134,6 +134,9 @@ const ProspectFormContent: React.FC = () => {
                 throw new Error("Payment method not created.");
             }
 
+            // Log the stripeAccountId being used
+            console.log("Using stripeAccount for confirmCardPayment:", user.stripeAccountId);
+
             // 2. Create Payment Intent with customer data
             const { clientSecret } = await createAuditionPaymentIntent({
               firstName: formData.firstName,
