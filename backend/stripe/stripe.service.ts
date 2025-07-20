@@ -65,10 +65,7 @@ export class StripeService {
     });
   }
 
-  async createCustomer(
-    name: string,
-    email: string,
-  ): Promise<Stripe.Customer> {
+  async createCustomer(name: string, email: string): Promise<Stripe.Customer> {
     try {
       const customer = await this.stripe.customers.create({
         name: name,
@@ -174,23 +171,62 @@ export class StripeService {
     });
   }
 
-  async getConnectAccountStatus(studioId: string): Promise<any> {
+  // =================================================================
+  // AQUÍ ESTÁ LA CORRECCIÓN:
+  // Reemplazamos 'getStudioStripeStatus' con la versión correcta 'getStudioStripeStatus'
+  // que maneja los errores y devuelve el formato que el frontend espera.
+  // =================================================================
+  async getStudioStripeStatus(studioId: string) {
     const studio = await this.studioRepository.findOneBy({ id: studioId });
 
-    if (!studio || !studio.stripeAccountId) {
-      return { status: 'unverified' };
+    if (!studio) {
+      throw new NotFoundException('Studio not found.');
+    }
+
+    if (!studio.stripeAccountId) {
+      // If studio exists but no Stripe Account ID, return a specific status
+      return {
+        status: 'unverified',
+        details_submitted: false,
+        payouts_enabled: false,
+      };
     }
 
     try {
-      const account = await this.stripe.accounts.retrieve(studio.stripeAccountId);
-      if (account.details_submitted && account.payouts_enabled) {
-        return { status: 'active' };
-      } else {
-        return { status: 'incomplete' };
+      const account = await this.stripe.accounts.retrieve(
+        studio.stripeAccountId,
+      );
+
+      let status: 'unverified' | 'incomplete' | 'active' = 'incomplete';
+      if (account.charges_enabled && account.payouts_enabled) {
+        status = 'active';
+      } else if (!account.details_submitted) {
+        status = 'unverified';
       }
+
+      let dashboardUrl: string | undefined = undefined;
+      if (status === 'active') {
+        try {
+          const loginLink = await this.stripe.accounts.createLoginLink(
+            studio.stripeAccountId,
+          );
+          dashboardUrl = loginLink.url;
+        } catch (linkError) {
+          this.logger.error(
+            `Failed to create login link for active Stripe account ${studio.stripeAccountId}: ${(linkError as Error).message}`,
+          );
+        }
+      }
+
+      return {
+        status: status,
+        details_submitted: account.details_submitted,
+        payouts_enabled: account.payouts_enabled,
+        url: dashboardUrl,
+      };
     } catch (error) {
       this.logger.error(
-        `Failed to retrieve Stripe Connect account status for studio ${studioId}: ${(error as Error).message}`,
+        `Failed to retrieve Stripe account status for studio ${studioId}: ${(error as Error).message}`,
       );
       throw new InternalServerErrorException(
         'Could not retrieve Stripe account status.',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getStripeAccountStatus, createStripeAccountLink } from '../../apiService';
+import { getStripeAccountStatus, createStripeAccountLink } from '../../services/apiService';
 import { showToast } from '../../utils';
 import { useAuth } from '../../contexts/AuthContext'; // 1. Importa tu hook de autenticación
 
@@ -63,44 +63,45 @@ const PayoutsBillingPage: React.FC = () => {
       return <p className="text-red-500">{error}</p>;
     }
     
-    if (!accountStatus) {
-        // Mensaje para cuando no se pudo conectar con Stripe o no hay cuenta
-        return (
-             <div className="text-center p-4 border rounded-lg">
-                <p className="font-semibold text-gray-700">Connect your Stripe Account</p>
-                <p className="text-gray-500 text-sm mt-2 mb-4">Connect a Stripe account to start accepting online payments and manage payouts.</p>
-                <button onClick={handleConnectClick} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
-                    Connect with Stripe
-                </button>
-            </div>
-        )
+    if (!accountStatus || accountStatus.status === 'unverified') {
+      return (
+        <div className="text-center p-4 border rounded-lg">
+          <p className="font-semibold text-gray-700">Connect your Stripe Account</p>
+          <p className="text-gray-500 text-sm mt-2 mb-4">Connect a Stripe account to start accepting online payments and manage payouts.</p>
+          <button onClick={handleConnectClick} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+            Connect with Stripe to Accept Payments
+          </button>
+        </div>
+      );
     }
 
-    switch (accountStatus.status) {
-      case 'unverified':
-      case 'incomplete':
-        return (
-           <div className="text-center p-4 border border-yellow-400 bg-yellow-50 rounded-lg">
-                <p className="font-semibold text-yellow-800">Finish your Stripe setup</p>
-                <p className="text-yellow-700 text-sm mt-2 mb-4">Your account is not fully active. Complete your Stripe onboarding to start receiving payouts.</p>
-                <button onClick={handleConnectClick} className="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600">
-                    Continue Onboarding
-                </button>
-            </div>
-        );
-      case 'active':
-        return (
-           <div className="text-center p-4 border border-green-400 bg-green-50 rounded-lg">
-                <p className="font-semibold text-green-800">Your account is active!</p>
-                <p className="text-green-700 text-sm mt-2 mb-4">You can now accept online payments and manage your payouts through Stripe.</p>
-                <a href="#" onClick={handleConnectClick} className="text-blue-600 hover:underline">
-                    Go to your Stripe Express dashboard
-                </a>
-            </div>
-        );
-      default:
-        return <p className="text-red-500">Could not determine your account status.</p>;
+    if (accountStatus.status === 'incomplete') {
+      return (
+        <div className="text-center p-4 border border-yellow-400 bg-yellow-50 rounded-lg">
+          <p className="font-semibold text-yellow-800">Finish your Stripe setup</p>
+          <p className="text-yellow-700 text-sm mt-2 mb-4">Your account is not fully active. Complete your Stripe onboarding to start receiving payouts.</p>
+          <button onClick={handleConnectClick} className="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600">
+            Continue Onboarding
+          </button>
+        </div>
+      );
     }
+
+    if (accountStatus.status === 'active') {
+      return (
+        <div className="text-center p-4 border border-green-400 bg-green-50 rounded-lg">
+          <p className="font-semibold text-green-800">Your account is active!</p>
+          <p className="text-green-700 text-sm mt-2 mb-4">You can now accept online payments and manage your payouts through Stripe.</p>
+          {accountStatus.url && (
+            <a href={accountStatus.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+              Go to your Stripe Express dashboard
+            </a>
+          )}
+        </div>
+      );
+    }
+
+    return <p className="text-red-500">Could not determine your account status.</p>;
   };
 
   return (

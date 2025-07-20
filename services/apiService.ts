@@ -735,6 +735,30 @@ export const createAuditionPaymentIntent = (prospectData: Pick<ProspectFormData,
   });
 };
 
+// --- Stripe Connect API Functions ---
+
+export const getStripeAccountStatus = (studioId: string): Promise<{
+  status: 'unverified' | 'incomplete' | 'active';
+  details_submitted: boolean;
+  payouts_enabled: boolean;
+  url?: string;
+}> => {
+  const url = API_ENDPOINTS.STRIPE_CONNECT_ACCOUNT_STATUS.replace(':studioId', studioId);
+  return request<{
+    status: 'unverified' | 'incomplete' | 'active';
+    details_submitted: boolean;
+    payouts_enabled: boolean;
+    url?: string;
+  }>(url);
+};
+
+export const createStripeAccountLink = (): Promise<{ url: string }> => {
+  return request<{ url: string }>(API_ENDPOINTS.STRIPE_CONNECT_ACCOUNT_LINK, {
+    method: 'POST',
+  });
+};
+
+
 // Prospect API Functions
 export const getProspects = (): Promise<Prospect[]> => {
   return request<Prospect[]>(API_ENDPOINTS.PROSPECTS);
