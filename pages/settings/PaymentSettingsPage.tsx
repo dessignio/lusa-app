@@ -8,7 +8,6 @@ import { showToast } from '../../utils';
 import { StripeProductSettings } from '../../types';
 
 const PaymentSettingsPage: React.FC = () => {
-    const [publicKey, setPublicKey] = useState('');
     const [productSettings, setProductSettings] = useState<StripeProductSettings>({
         enrollmentProductId: '',
         enrollmentPriceId: '',
@@ -22,7 +21,6 @@ const PaymentSettingsPage: React.FC = () => {
             setIsLoading(true);
             try {
                 const settings = await getStripeSettings();
-                setPublicKey(settings.publicKey || '');
                 setProductSettings({
                     enrollmentProductId: settings.enrollmentProductId || '',
                     enrollmentPriceId: settings.enrollmentPriceId || '',
@@ -41,11 +39,7 @@ const PaymentSettingsPage: React.FC = () => {
 
     const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        if (name === 'publicKey') {
-            setPublicKey(value);
-        } else {
-            setProductSettings(prev => ({ ...prev, [name]: value }));
-        }
+        setProductSettings(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -53,7 +47,6 @@ const PaymentSettingsPage: React.FC = () => {
         setIsLoading(true);
         try {
             await updateStripeSettings({
-                publicKey,
                 ...productSettings,
             });
             showToast('Stripe settings updated successfully! The server will restart automatically.', 'success');
@@ -75,30 +68,6 @@ const PaymentSettingsPage: React.FC = () => {
             </div>
             
             <div className="space-y-6">
-                {/* Card for API Key */}
-                <Card title="Stripe API Key" icon={<LockIcon />} collapsible={false}>
-                    <div className="p-6">
-                        <p className="text-sm text-brand-text-secondary mb-4">
-                            Manage the public API key for Stripe. This key is used on the client-side to securely collect payment information.
-                        </p>
-                        <div className="max-w-md">
-                            <Input
-                                id="publicKey"
-                                name="publicKey"
-                                label="Stripe Public Key"
-                                type="text"
-                                value={publicKey}
-                                onChange={handleSettingsChange}
-                                placeholder="pk_test_..."
-                                disabled={isLoading}
-                            />
-                        </div>
-                         <p className="text-xs text-brand-text-muted mt-2">
-                            This key is considered public and is safe to be exposed in the frontend. The secret key should never be exposed.
-                        </p>
-                    </div>
-                </Card>
-
                 {/* Card for Product IDs */}
                 <Card title="Stripe Product & Price IDs" icon={<IdCardIcon />} collapsible={false}>
                     <div className="p-6">
