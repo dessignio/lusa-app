@@ -114,16 +114,34 @@ const ProspectFormContent: React.FC = () => {
         }
 
         try {
-            // 1. Create Payment Intent with customer data
+            // 1. Create Payment Method
+            const { paymentMethod, error: createPmError } = await stripe.createPaymentMethod({
+                type: 'card',
+                card: cardElement,
+                billing_details: {
+                    name: `${formData.firstName} ${formData.lastName}`,
+                    email: formData.email,
+                },
+            });
+
+            if (createPmError) {
+                throw new Error(createPmError.message || "Failed to create payment method.");
+            }
+
+            if (!paymentMethod) {
+                throw new Error("Payment method not created.");
+            }
+
+            // 2. Create Payment Intent with customer data
             const { clientSecret } = await createAuditionPaymentIntent({
               firstName: formData.firstName,
               lastName: formData.lastName,
               email: formData.email,
             });
 
-            // 2. Confirm Card Payment
+            // 3. Confirm Card Payment using the created paymentMethod.id
             const paymentResult = await stripe.confirmCardPayment(clientSecret, {
-                payment_method: { card: cardElement }
+                payment_method: paymentMethod.id,
             });
             
             if (paymentResult.error) {
@@ -131,7 +149,7 @@ const ProspectFormContent: React.FC = () => {
             }
             
             if(paymentResult.paymentIntent.status === 'succeeded') {
-                // 3. Create Prospect in our DB
+                // 4. Create Prospect in our DB
                 const auditionPaymentId = paymentResult.paymentIntent.id;
                 await createProspect(formData, auditionPaymentId);
                 showToast("Prospect registered and audition fee paid successfully!", "success");
