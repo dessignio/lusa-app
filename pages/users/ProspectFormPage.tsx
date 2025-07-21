@@ -9,7 +9,7 @@ import { UserPlusIcon, PencilIcon, ChevronLeftIcon, DollarSignIcon } from '../..
 import { getProspectById, createProspect, updateProspect, createAuditionPaymentIntent } from '../../services/apiService';
 import { showToast } from '../../utils';
 import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 // Tu clave pública de Stripe (esto no cambia)
 const stripePromise = loadStripe("pk_test_51R4Y62RoIWWgoaNu8aBXQRu24UEFe4oNZzSFTv0nOpj1A3vNZbT2bHTAaWiCnj7Hk7YwYfKQQbtH6j2AjuMGfTkb00ch0mkTMb");
@@ -202,7 +202,7 @@ const ProspectFormContent: React.FC = () => {
                 {!isEditMode && (
                     <Card title="Audition Fee Payment" icon={<DollarSignIcon className="w-5 h-5 text-brand-primary" />} collapsible={false} className="mb-6">
                         <p className="text-sm text-brand-text-secondary mb-4">Please enter card details to pay the one-time audition fee of $100.00 USD.</p>
-                         <CardElement id="card-element" className="StripeElement" />
+                         <PaymentElement id="payment-element" />
                     </Card>
                 )}
                 
