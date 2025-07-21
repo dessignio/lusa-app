@@ -6,12 +6,11 @@ import Input from '../../components/forms/Input';
 import Button from '../../components/forms/Button';
 import Card from '../../components/Card';
 import { UserPlusIcon, PencilIcon, ChevronLeftIcon, DollarSignIcon } from '../../components/icons';
-import { getProspectById, createProspect, updateProspect, createAuditionPaymentIntent } from '../../services/apiService';
+import { getProspectById, createProspect, updateProspect, getConnectAccountId, createAuditionPaymentIntent } from '../../services/apiService';
 import { showToast } from '../../utils';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-// Tu clave pública de Stripe (esto no cambia)
 const stripePromise = loadStripe("pk_test_51R4Y62RoIWWgoaNu8aBXQRu24UEFe4oNZzSFTv0nOpj1A3vNZbT2bHTAaWiCnj7Hk7YwYfKQQbtH6j2AjuMGfTkb00ch0mkTMb");
 
 const initialProspectFormData: ProspectFormData = {
@@ -79,9 +78,6 @@ const ProspectFormContent: React.FC = () => {
         return Object.keys(errors).length === 0;
     };
 
-    // ==================================================================
-    // 👇 AQUÍ COMIENZA LA FUNCIÓN `handleSubmit` ACTUALIZADA
-    // ==================================================================
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitError(null);
@@ -114,19 +110,16 @@ const ProspectFormContent: React.FC = () => {
         }
 
         try {
-            // Paso 1: Validar el formulario de pago antes de cualquier acción asíncrona.
             const submitResult = await elements.submit();
             if (submitResult.error) {
                 throw new Error(submitResult.error.message);
             }
 
-            // Paso 2: Crear el Payment Intent en el backend DESPUÉS de la validación del formulario.
             const { clientSecret } = await createAuditionPaymentIntent({
                 name: `${formData.firstName} ${formData.lastName}`,
                 email: formData.email,
             });
 
-            // Paso 3: Confirmar el pago con el clientSecret obtenido.
             const paymentResult = await stripe.confirmPayment({
                 elements,
                 clientSecret,
@@ -159,15 +152,11 @@ const ProspectFormContent: React.FC = () => {
             setIsSubmitting(false);
         }
     };
-    // ==================================================================
-    // 👆 AQUÍ TERMINA LA FUNCIÓN `handleSubmit` ACTUALIZADA
-    // ==================================================================
 
     if (isLoading) {
         return <div className="text-center p-10 text-brand-text-secondary">Loading...</div>;
     }
 
-    // El JSX del formulario no necesita cambios
     return (
         <div className="space-y-6">
             <NavLink to="/users/prospects" className="inline-flex items-center text-brand-primary hover:text-brand-primary-dark text-sm mb-2">
@@ -216,23 +205,32 @@ const ProspectFormContent: React.FC = () => {
     );
 };
 
-
 const ProspectFormPage: React.FC = () => {
-  const options = {
-    mode: 'payment' as const,
-    amount: 10000, // Audition fee: $100.00 USD
-    currency: 'usd',
-    appearance: {
-      theme: 'stripe' as const,
-    },
-  };
+  const [stripeOptions, setStripeOptions] = useState<any>(null);
+
+  useEffect(() => {
+    getConnectAccountId().then(({ stripeAccountId }) => {
+      setStripeOptions({
+        mode: 'payment' as const,
+        amount: 10000,
+        currency: 'usd',
+        on_behalf_of: stripeAccountId,
+        appearance: {
+          theme: 'stripe' as const,
+        },
+      });
+    });
+  }, []);
+
+  if (!stripeOptions) {
+    return <div className="text-center p-10 text-brand-text-secondary">Loading Payment Form...</div>;
+  }
 
   return (
-    <Elements stripe={stripePromise} options={options}>
+    <Elements stripe={stripePromise} options={stripeOptions}>
       <ProspectFormContent />
     </Elements>
   );
 };
-
 
 export default ProspectFormPage;

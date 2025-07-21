@@ -765,7 +765,12 @@ export const createStripeAccountLink = (): Promise<{ url: string }> => {
 };
 
 
-// Prospect API Functions
+export const getConnectAccountId = async (): Promise<{ stripeAccountId: string }> => {
+  const response = await apiClient.get('/stripe/connect-account-id');
+  return response.data;
+};
+
+// Prospect Management
 export const getProspects = (): Promise<Prospect[]> => {
   return request<Prospect[]>(API_ENDPOINTS.PROSPECTS);
 };
