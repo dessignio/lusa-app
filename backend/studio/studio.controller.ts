@@ -1,6 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/require-await */
 // En tu archivo: src/studio/studio.controller.ts
 
-import { Controller, Get, Param, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { StripeService } from '../stripe/stripe.service'; // Asegúrate de que la ruta sea correcta
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 

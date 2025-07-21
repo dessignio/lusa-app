@@ -29,6 +29,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const storedUser = localStorage.getItem('authUser');
         const storedPermissions = localStorage.getItem('authPermissions');
         
+        console.log("AuthContext: Stored user from localStorage:", storedUser); // NEW LOG
+
         if (storedToken && storedUser && storedPermissions) {
             setUser(JSON.parse(storedUser));
             setToken(storedToken);
@@ -46,28 +48,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = useCallback(async (credentials: AdminUserCredentials): Promise<{ success: boolean; error?: string }> => {
-    setLoading(true);
-    try {
-      const response: LoginResponse = await loginUser(credentials);
-      if (response.access_token && response.user && response.permissions) {
-        setToken(response.access_token);
-        setUser(response.user);
-        setPermissions(new Set(response.permissions));
-        
-        localStorage.setItem('authToken', response.access_token);
-        localStorage.setItem('authUser', JSON.stringify(response.user));
-        localStorage.setItem('authPermissions', JSON.stringify(response.permissions));
+        setLoading(true);
+        try {
+          const response: LoginResponse = await loginUser(credentials);
+          console.log("AuthContext: Login response user object:", response.user); // NEW LOG
+          if (response.access_token && response.user && response.permissions) {
+            setToken(response.access_token);
+            setUser(response.user);
+            setPermissions(new Set(response.permissions));
+            
+            localStorage.setItem('authToken', response.access_token);
+            localStorage.setItem('authUser', JSON.stringify(response.user));
+            localStorage.setItem('authPermissions', JSON.stringify(response.permissions));
 
-        return { success: true };
-      }
-      return { success: false, error: 'Invalid response from server.' };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-      return { success: false, error: errorMessage };
-    } finally {
-        setLoading(false);
-    }
-  }, []);
+            return { success: true };
+          }
+          return { success: false, error: 'Invalid response from server.' };
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+          return { success: false, error: errorMessage };
+        } finally {
+            setLoading(false);
+        }
+      }, []);
 
   const logout = useCallback(() => {
     setUser(null);

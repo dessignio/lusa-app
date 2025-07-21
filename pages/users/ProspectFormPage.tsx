@@ -1,35 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
-import { ProspectFormData } from '../../types'; 
+import { useAuth } from '../../contexts/AuthContext';
+import { ProspectFormData } from '../../types';
 import Input from '../../components/forms/Input';
 import Button from '../../components/forms/Button';
 import Card from '../../components/Card';
-import { UserPlusIcon, PencilIcon, ChevronLeftIcon, UserCheckIcon, DollarSignIcon } from '../../components/icons';
+import { UserPlusIcon, PencilIcon, ChevronLeftIcon, DollarSignIcon } from '../../components/icons';
 import { getProspectById, createProspect, updateProspect, createAuditionPaymentIntent } from '../../services/apiService';
 import { showToast } from '../../utils';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe("pk_test_51R4Y62RoIWWgoaNu8aBXQRu24UEFe4oNZzSFTv0nOpj1A3vNZbT2bHTAaWiCnj7Hk7YwYfKQQbtH6j2AjuMGfTkb00ch0mkTMb"); 
+// Tu clave pública de Stripe (esto no cambia)
+const stripePromise = loadStripe("pk_test_51R4Y62RoIWWgoaNu8aBXQRu24UEFe4oNZzSFTv0nOpj1A3vNZbT2bHTAaWiCnj7Hk7YwYfKQQbtH6j2AjuMGfTkb00ch0mkTMb");
 
 const initialProspectFormData: ProspectFormData = {
     firstName: '',
     lastName: '',
     email: '',
-    dateOfBirth: '', 
+    dateOfBirth: '',
     phone: '',
 };
 
 const ProspectFormContent: React.FC = () => {
     const { prospectId } = useParams<{ prospectId: string }>();
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
     const isEditMode = Boolean(prospectId);
 
     const stripe = useStripe();
     const elements = useElements();
-    const { user } = useAuth(); // Get user from auth context
-  
+    const { user } = useAuth();
+
     const [formData, setFormData] = useState<ProspectFormData>(initialProspectFormData);
     const [formErrors, setFormErrors] = useState<Partial<Record<keyof ProspectFormData, string>>>({});
     const [isLoading, setIsLoading] = useState(true);
@@ -62,7 +63,7 @@ const ProspectFormContent: React.FC = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-        if (formErrors[name as keyof ProspectFormData]) { 
+        if (formErrors[name as keyof ProspectFormData]) {
             setFormErrors(prev => ({ ...prev, [name]: undefined }));
         }
     };
@@ -77,7 +78,10 @@ const ProspectFormContent: React.FC = () => {
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
     };
-    
+
+    // ==================================================================
+    // 👇 AQUÍ COMIENZA LA FUNCIÓN `handleSubmit` ACTUALIZADA
+    // ==================================================================
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitError(null);
@@ -86,9 +90,9 @@ const ProspectFormContent: React.FC = () => {
             return;
         }
 
-        setIsSubmitting(true);
-
-        if(isEditMode && prospectId) {
+        // La lógica para el modo de edición no cambia
+        if (isEditMode && prospectId) {
+            setIsSubmitting(true);
             try {
                 await updateProspect(prospectId, formData);
                 showToast("Prospect updated successfully!", 'success');
@@ -102,78 +106,71 @@ const ProspectFormContent: React.FC = () => {
             return;
         }
 
-        // --- Create Mode with Payment ---
+        // --- Inicia el nuevo flujo de creación y pago ---
+        setIsSubmitting(true);
+
         if (!stripe || !elements) {
             setSubmitError("Stripe is not ready. Please wait a moment and try again.");
             setIsSubmitting(false);
             return;
         }
-        const cardElement = elements.getElement(CardElement);
-        if (!cardElement) {
-             setSubmitError("Payment details could not be found. Please refresh the page.");
-             setIsSubmitting(false);
-             return;
-        }
 
         try {
-            // 1. Create Payment Method
-            const { paymentMethod, error: createPmError } = await stripe.createPaymentMethod({
-                type: 'card',
-                card: cardElement,
-                billing_details: {
-                    name: `${formData.firstName} ${formData.lastName}`,
-                    email: formData.email,
-                },
-            });
-
-            if (createPmError) {
-                throw new Error(createPmError.message || "Failed to create payment method.");
-            }
-
-            if (!paymentMethod) {
-                throw new Error("Payment method not created.");
-            }
-
-            // Log the stripeAccountId being used
-            console.log("Using stripeAccount for confirmCardPayment:", user.stripeAccountId);
-
-            // 2. Create Payment Intent with customer data
+            // 1. Llama a tu backend PRIMERO para crear el Payment Intent y obtener el clientSecret.
+            //    Ya no creamos un PaymentMethod manualmente aquí.
             const { clientSecret } = await createAuditionPaymentIntent({
-              firstName: formData.firstName,
-              lastName: formData.lastName,
-              email: formData.email,
+                name: `${formData.firstName} ${formData.lastName}`,
+                email: formData.email,
             });
 
-            // 3. Confirm Card Payment using the created paymentMethod.id
-            const paymentResult = await stripe.confirmCardPayment(clientSecret, {
-                payment_method: paymentMethod.id,
-            }, { stripeAccount: user.stripeAccountId });
-            
+            // 2. Usa stripe.confirmPayment para confirmar el pago.
+            //    Esta función maneja la creación del PaymentMethod y la confirmación en un solo paso.
+            const paymentResult = await stripe.confirmPayment({
+                elements, // Pasa el objeto 'elements' que contiene el CardElement
+                clientSecret, // El secret obtenido de tu backend
+                confirmParams: {
+                    // 💡 IMPORTANTE: Debes crear una página en esta ruta para manejar el resultado.
+                    return_url: `${window.location.origin}/payment-confirmation`,
+                },
+                redirect: 'if_required', // Solo redirige si se requiere autenticación 3D Secure
+            });
+
+            // Si `redirect: 'if_required'` no causa una redirección, el código continúa aquí.
+            // Si hay un error (ej. fondos insuficientes, tarjeta rechazada), se captura aquí.
             if (paymentResult.error) {
-                throw new Error(paymentResult.error.message || "Payment failed.");
+                // Errores que el usuario puede corregir (ej. typo en el CVC).
+                if (paymentResult.error.type === "card_error" || paymentResult.error.type === "validation_error") {
+                    throw new Error(paymentResult.error.message || "Payment failed. Please check your card details.");
+                } else {
+                    throw new Error("An unexpected error occurred during payment.");
+                }
             }
-            
-            if(paymentResult.paymentIntent.status === 'succeeded') {
-                // 4. Create Prospect in our DB
+
+            // 3. Si el pago tuvo éxito, crea el prospecto en tu base de datos.
+            if (paymentResult.paymentIntent && paymentResult.paymentIntent.status === 'succeeded') {
                 const auditionPaymentId = paymentResult.paymentIntent.id;
                 await createProspect(formData, auditionPaymentId);
                 showToast("Prospect registered and audition fee paid successfully!", "success");
                 navigate('/users/prospects');
             } else {
-                 throw new Error("Payment was not successful. Please try another card.");
+                 throw new Error("Payment was not successful. Please try again.");
             }
         } catch (err) {
-             setSubmitError(err instanceof Error ? err.message : 'An unknown error occurred.');
-             showToast(`Operation failed: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error');
+            setSubmitError(err instanceof Error ? err.message : 'An unknown error occurred.');
+            showToast(`Operation failed: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error');
         } finally {
             setIsSubmitting(false);
         }
     };
-    
+    // ==================================================================
+    // 👆 AQUÍ TERMINA LA FUNCIÓN `handleSubmit` ACTUALIZADA
+    // ==================================================================
+
     if (isLoading) {
         return <div className="text-center p-10 text-brand-text-secondary">Loading...</div>;
     }
 
+    // El JSX del formulario no necesita cambios
     return (
         <div className="space-y-6">
             <NavLink to="/users/prospects" className="inline-flex items-center text-brand-primary hover:text-brand-primary-dark text-sm mb-2">
@@ -221,6 +218,7 @@ const ProspectFormContent: React.FC = () => {
         </div>
     );
 };
+
 
 const ProspectFormPage: React.FC = () => {
   return (
