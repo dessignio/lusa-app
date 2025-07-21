@@ -21,7 +21,7 @@ const initialProspectFormData: ProspectFormData = {
     phone: '',
 };
 
-const ProspectPaymentForm: React.FC = () => {
+const ProspectPaymentForm: React.FC<{ navigate: ReturnType<typeof useNavigate> }> = ({ navigate }) => {
     const stripe = useStripe();
     const elements = useElements();
     const [isProcessing, setIsProcessing] = useState(false);
@@ -200,7 +200,7 @@ const ProspectFormPage: React.FC = () => {
                 <Card title="Audition Fee Payment" icon={<DollarSignIcon className="w-5 h-5 text-brand-primary" />} collapsible={false} className="mb-6">
                     <p className="text-sm text-brand-text-secondary mb-4">Please enter card details to pay the one-time audition fee of $100.00 USD.</p>
                     <Elements stripe={stripeInstance} options={stripeOptions}>
-                        <ProspectPaymentForm />
+                        <ProspectPaymentForm navigate={navigate} />
                     </Elements>
                 </Card>
             )}
