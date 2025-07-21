@@ -23,20 +23,25 @@ const PaymentConfirmationPage: React.FC = () => {
     }
 
     const processPaymentConfirmation = async () => {
+      console.log('Starting payment confirmation process...');
       try {
         // In a real application, you would typically verify the PaymentIntent status on your backend
         // using the paymentIntentId. For this example, we'll assume success if we reach here.
         // However, for a robust solution, a backend webhook or direct API call to Stripe is recommended.
 
         const storedFormData = sessionStorage.getItem('prospectFormData');
+        console.log('Retrieved storedFormData:', storedFormData);
         if (!storedFormData) {
           throw new Error('Prospect data not found in session storage. Cannot complete registration.');
         }
 
         const prospectFormData: ProspectFormData = JSON.parse(storedFormData);
+        console.log('Parsed prospectFormData:', prospectFormData);
+        console.log('Payment Intent ID for createProspect:', paymentIntentId);
 
         // Call your backend to create the prospect with the payment ID
-        await createProspect(prospectFormData, paymentIntentId);
+        const createdProspect = await createProspect(prospectFormData, paymentIntentId);
+        console.log('createProspect successful. Created prospect:', createdProspect);
 
         setMessage('Payment successful! Your prospect has been registered.');
         showToast('Prospect registered successfully!', 'success');
@@ -48,6 +53,7 @@ const PaymentConfirmationPage: React.FC = () => {
 
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during registration.';
+        console.error('Error during prospect registration:', error);
         setMessage(`Payment successful, but prospect registration failed: ${errorMessage}`);
         setIsError(true);
         showToast(`Registration failed: ${errorMessage}`, 'error');

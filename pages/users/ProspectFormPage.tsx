@@ -36,16 +36,21 @@ const ProspectPaymentForm: React.FC = () => {
 
         setIsProcessing(true);
 
-        const { error } = await stripe.confirmPayment({
+        const { error, paymentIntent } = await stripe.confirmPayment({
             elements,
             confirmParams: {
                 return_url: `${window.location.origin}/payment-confirmation`,
             },
+            redirect: 'if_required',
         });
 
         if (error) {
             setErrorMessage(error.message || 'An unexpected error occurred.');
-        } 
+        } else if (paymentIntent) {
+            // If no error, and paymentIntent is returned, it means no redirect was needed.
+            // Manually navigate to the confirmation page.
+            navigate(`/payment-confirmation?payment_intent=${paymentIntent.id}&payment_intent_client_secret=${paymentIntent.client_secret}`);
+        }
 
         setIsProcessing(false);
     };
@@ -137,7 +142,7 @@ const ProspectFormPage: React.FC = () => {
                 email: formData.email,
             });
 
-            setStripeOptions({ clientSecret, appearance: { theme: 'stripe' } });
+            setStripeOptions({ clientSecret, appearance: { theme: 'stripe', layout: 'tabs' } });
             sessionStorage.setItem('prospectFormData', JSON.stringify(formData));
             setStep('payment');
         } catch (err) {
