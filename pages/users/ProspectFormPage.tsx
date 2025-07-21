@@ -221,9 +221,18 @@ const ProspectFormContent: React.FC = () => {
 
 
 const ProspectFormPage: React.FC = () => {
+  const options = {
+    mode: 'payment' as const,
+    amount: 10000, // Audition fee: $100.00 USD
+    currency: 'usd',
+    appearance: {
+      theme: 'stripe' as const,
+    },
+  };
+
   return (
-    <Elements stripe={stripePromise}>
-        <ProspectFormContent />
+    <Elements stripe={stripePromise} options={options}>
+      <ProspectFormContent />
     </Elements>
   );
 };
