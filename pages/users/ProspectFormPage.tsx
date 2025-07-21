@@ -57,9 +57,9 @@ const ProspectPaymentForm: React.FC<{ navigate: ReturnType<typeof useNavigate> }
 
     return (
         <form onSubmit={handleSubmit}>
-            <PaymentElement />
+            {elements && <PaymentElement />}
             {errorMessage && <div className="p-3 my-4 bg-brand-error-light text-brand-error-dark rounded-md text-sm">{errorMessage}</div>}
-            <Button type="submit" variant="primary" isLoading={isProcessing} disabled={!stripe || isProcessing} className="mt-6 w-full">
+            <Button type="submit" variant="primary" isLoading={isProcessing} disabled={!stripe || isProcessing || !elements} className="mt-6 w-full">
                 Pay Now
             </Button>
         </form>
