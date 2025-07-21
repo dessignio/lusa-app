@@ -61,9 +61,9 @@ export const STUDENT_STATUS_OPTIONS: { value: StudentStatus, label: string }[] =
 ];
 
 export const GENDER_OPTIONS: { value: Student['gender'], label: string }[] = [
-    { value: "Female", label: "Female" },
-    { value: "Male", label: "Male" },
-    { value: "Other", label: "Other" },
+    { value: "Female", label: "Female" },                                                                                                                                │
+    { value: "Male", label: "Male" },                                                                                                                                    │
+    { value: "Other", label: "Other" },                                                                                                                                  │
     { value: "Prefer not to say", label: "Prefer not to say" },
 ];
 

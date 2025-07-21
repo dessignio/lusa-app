@@ -118,12 +118,10 @@ export const getStudentById = (studentId: string): Promise<Student> => {
   return request<Student>(`${API_ENDPOINTS.STUDENTS}/${studentId}`);
 };
 
-export const createStudent = (studentData: StudentFormData): Promise<Student> => {
-  // Password is included in StudentFormData, backend will hash it.
-  // Backend handles derived fields like membershipType, membershipPlanName, renewalDate.
+export const createStudent = (studentData: StudentFormData, studioId: string): Promise<Student> => {
   return request<Student>(API_ENDPOINTS.STUDENTS, {
     method: 'POST',
-    body: JSON.stringify(studentData),
+    body: JSON.stringify({ ...studentData, studioId }),
   });
 };
 

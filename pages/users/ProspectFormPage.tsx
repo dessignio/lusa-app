@@ -146,7 +146,8 @@ const ProspectFormPage: React.FC = () => {
 
             // 3. Create the Payment Intent to get the "ticket" (clientSecret).
             const { clientSecret } = await createAuditionPaymentIntent({
-                name: `${formData.firstName} ${formData.lastName}`,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
                 email: formData.email,
             });
             

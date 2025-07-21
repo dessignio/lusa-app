@@ -10,6 +10,7 @@ import Button from '../../components/forms/Button';
 import Card from '../../components/Card';
 import { UserPlusIcon, PencilIcon, ChevronLeftIcon, UserShieldIcon, UserFriendsIcon, TimesIcon } from '../../components/icons';
 import { getStudentById, createStudent, updateStudent, getPrograms, getParents } from '../../services/apiService';
+import { useAuth } from '../../contexts/AuthContext';
 import { showToast, calculateAge, resizeImage } from '../../utils';
 
 const initialStudentFormData: StudentFormData = {
@@ -38,6 +39,9 @@ const StudentFormPage: React.FC = () => {
   const { studentId } = useParams<{ studentId: string }>();
   const navigate = useNavigate(); 
   const isEditMode = Boolean(studentId);
+  const { user } = useAuth(); // Get user from AuthContext
+
+  const studioId = user?.studioId; // Extract studioId
 
   const [formData, setFormData] = useState<StudentFormData>(initialStudentFormData);
   const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
@@ -207,6 +211,7 @@ const StudentFormPage: React.FC = () => {
     if (formData.password && formData.password !== formData.confirmPassword) errors.confirmPassword = "Passwords do not match.";
     
     if (!formData.dateOfBirth) errors.dateOfBirth = "Date of birth is required.";
+    if (!formData.gender) errors.gender = "Gender is required.";
     
     if (isUnderage && !formData.parentId) {
         errors.parentId = "A parent is required for students under 18.";
@@ -281,7 +286,12 @@ const StudentFormPage: React.FC = () => {
         await updateStudent(studentId, payload);
         showToast(`Student ${formData.firstName} ${formData.lastName} updated successfully.`, 'success');
       } else {
-        await createStudent(payload as StudentFormData);
+        if (!studioId) {
+          showToast("Studio ID not found. Cannot create student.", "error");
+          setIsSubmitting(false);
+          return;
+        }
+        await createStudent(payload as StudentFormData, studioId);
         showToast(`Student ${formData.firstName} ${formData.lastName} created successfully.`, 'success');
       }
       navigate('/users/students'); 
