@@ -90,7 +90,6 @@ const ProspectFormContent: React.FC = () => {
             return;
         }
 
-        // La lógica para el modo de edición no cambia
         if (isEditMode && prospectId) {
             setIsSubmitting(true);
             try {
@@ -106,7 +105,6 @@ const ProspectFormContent: React.FC = () => {
             return;
         }
 
-        // --- Inicia el nuevo flujo de creación y pago ---
         setIsSubmitting(true);
 
         if (!stripe || !elements) {
@@ -116,29 +114,29 @@ const ProspectFormContent: React.FC = () => {
         }
 
         try {
-            // 1. Llama a tu backend PRIMERO para crear el Payment Intent y obtener el clientSecret.
-            //    Ya no creamos un PaymentMethod manualmente aquí.
+            // Paso 1: Validar el formulario de pago antes de cualquier acción asíncrona.
+            const submitResult = await elements.submit();
+            if (submitResult.error) {
+                throw new Error(submitResult.error.message);
+            }
+
+            // Paso 2: Crear el Payment Intent en el backend DESPUÉS de la validación del formulario.
             const { clientSecret } = await createAuditionPaymentIntent({
                 name: `${formData.firstName} ${formData.lastName}`,
                 email: formData.email,
             });
 
-            // 2. Usa stripe.confirmPayment para confirmar el pago.
-            //    Esta función maneja la creación del PaymentMethod y la confirmación en un solo paso.
+            // Paso 3: Confirmar el pago con el clientSecret obtenido.
             const paymentResult = await stripe.confirmPayment({
-                elements, // Pasa el objeto 'elements' que contiene el CardElement
-                clientSecret, // El secret obtenido de tu backend
+                elements,
+                clientSecret,
                 confirmParams: {
-                    // 💡 IMPORTANTE: Debes crear una página en esta ruta para manejar el resultado.
                     return_url: `${window.location.origin}/payment-confirmation`,
                 },
-                redirect: 'if_required', // Solo redirige si se requiere autenticación 3D Secure
+                redirect: 'if_required',
             });
 
-            // Si `redirect: 'if_required'` no causa una redirección, el código continúa aquí.
-            // Si hay un error (ej. fondos insuficientes, tarjeta rechazada), se captura aquí.
             if (paymentResult.error) {
-                // Errores que el usuario puede corregir (ej. typo en el CVC).
                 if (paymentResult.error.type === "card_error" || paymentResult.error.type === "validation_error") {
                     throw new Error(paymentResult.error.message || "Payment failed. Please check your card details.");
                 } else {
@@ -146,7 +144,6 @@ const ProspectFormContent: React.FC = () => {
                 }
             }
 
-            // 3. Si el pago tuvo éxito, crea el prospecto en tu base de datos.
             if (paymentResult.paymentIntent && paymentResult.paymentIntent.status === 'succeeded') {
                 const auditionPaymentId = paymentResult.paymentIntent.id;
                 await createProspect(formData, auditionPaymentId);
