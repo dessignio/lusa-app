@@ -101,9 +101,17 @@ const ParentFormPage: React.FC = () => {
     setIsSubmitting(true);
     setSubmitError(null);
 
-    const payload: Partial<ParentFormData> = { ...formData };
+    let payload: Partial<ParentFormData> = { ...formData };
     if (!payload.password) delete payload.password;
     delete payload.confirmPassword;
+
+    // Exclude properties that should not be sent to the backend on update
+    if (isEditMode) {
+        const { id, createdAt, updatedAt, ...rest } = payload;
+        // Assuming studioId might also be present if Parent type includes it
+        const { studioId, ...finalPayload } = rest as any;
+        payload = finalPayload;
+    }
 
     try {
       if (isEditMode && parentId) {
