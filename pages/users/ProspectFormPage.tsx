@@ -73,7 +73,7 @@ const ProspectFormPage: React.FC = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [stripeOptions, setStripeOptions] = useState<any>(null);
-    const [stripePromise, setStripePromise] = useState<Promise<Stripe | null>>(initialStripePromise);
+    const [stripeInstance, setStripeInstance] = useState<Stripe | null>(null); // Holds the resolved Stripe object
 
     useEffect(() => {
         if (isEditMode && prospectId) {
@@ -128,7 +128,9 @@ const ProspectFormPage: React.FC = () => {
 
         try {
             const { stripeAccountId } = await getConnectAccountId();
-            setStripePromise(loadStripe("pk_test_51R4Y62RoIWWgoaNu8aBXQRu24UEFe4oNZzSFTv0nOpj1A3vNZbT2bHTAaWiCnj7Hk7YwYfKQQbtH6j2AjuMGfTkb00ch0mkTMb", { stripeAccount: stripeAccountId }));
+            // Await the loadStripe call to get the resolved Stripe object
+            const resolvedStripe = await loadStripe("pk_test_51R4Y62RoIWWgoaNu8aBXQRu24UEFe4oNZzSFTv0nOpj1A3vNZbT2bHTAaWiCnj7Hk7YwYfKQQbtH6j2AjuMGfTkb00ch0mkTMb", { stripeAccount: stripeAccountId });
+            setStripeInstance(resolvedStripe);
 
             const { clientSecret } = await createAuditionPaymentIntent({
                 name: `${formData.firstName} ${formData.lastName}`,
@@ -136,6 +138,7 @@ const ProspectFormPage: React.FC = () => {
             });
 
             setStripeOptions({ clientSecret, appearance: { theme: 'stripe' } });
+            sessionStorage.setItem('prospectFormData', JSON.stringify(formData));
             setStep('payment');
         } catch (err) {
             setSubmitError(err instanceof Error ? err.message : 'An unknown error occurred.');
@@ -188,10 +191,10 @@ const ProspectFormPage: React.FC = () => {
                 </form>
             )}
 
-            {step === 'payment' && stripeOptions && (
+            {step === 'payment' && stripeOptions && stripeInstance && (
                 <Card title="Audition Fee Payment" icon={<DollarSignIcon className="w-5 h-5 text-brand-primary" />} collapsible={false} className="mb-6">
                     <p className="text-sm text-brand-text-secondary mb-4">Please enter card details to pay the one-time audition fee of $100.00 USD.</p>
-                    <Elements stripe={stripePromise} options={stripeOptions}>
+                    <Elements stripe={stripeInstance} options={stripeOptions}>
                         <ProspectPaymentForm />
                     </Elements>
                 </Card>

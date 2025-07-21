@@ -86,6 +86,7 @@ const StudentSelectorPage = React.lazy(() => import('./pages/portal/StudentSelec
 const AttendanceScannerPage = React.lazy(() => import('./pages/AttendanceScannerPage'));
 
 const StripeReturnPage = React.lazy(() => import('./pages/StripeReturnPage'));
+const PaymentConfirmationPage = React.lazy(() => import('./pages/PaymentConfirmationPage'));
 
 // --- AÑADE ESTAS LÍNEAS ---
 const PublicPricingPage = React.lazy(() => import('./pages/PublicPricingPage'));
@@ -249,6 +250,7 @@ const App: React.FC = () => {
                       <Route path="/access-denied" element={<AdminAccessDeniedPage />} />
                       <Route path="/portal/login" element={<ClientLoginPage />} />
                       <Route path="/stripe-return" element={<StripeReturnPage />} />
+                      <Route path="/payment-confirmation" element={<PaymentConfirmationPage />} />
                       <Route path="/pricing" element={<PublicPricingPage />} />
                       <Route path="/signup" element={<SignUpPage />} />
                       <Route path="/signup-success" element={<SignUpSuccessPage />} />
