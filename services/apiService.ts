@@ -766,7 +766,7 @@ export const createStripeAccountLink = (): Promise<{ url: string }> => {
 
 
 export const getConnectAccountId = async (): Promise<{ stripeAccountId: string }> => {
-  return request<{ stripeAccountId: string }>('/stripe/connect-account-id');
+  return request<{ stripeAccountId: string }>(`${API_BASE_URL}/stripe/connect-account-id`);
 };
 
 // Prospect Management
