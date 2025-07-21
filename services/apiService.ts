@@ -726,7 +726,8 @@ export const getFinancialMetrics = (): Promise<FinancialMetrics> => {
 
 export const createAuditionPaymentIntent = (prospectData: Pick<ProspectFormData, 'firstName' | 'lastName' | 'email'>): Promise<{ clientSecret: string }> => {
   const payload = {
-    name: `${prospectData.firstName} ${prospectData.lastName}`,
+    firstName: prospectData.firstName,
+    lastName: prospectData.lastName,
     email: prospectData.email,
   };
   return request<{ clientSecret: string }>(API_ENDPOINTS.STRIPE_CREATE_AUDITION_PAYMENT, {
