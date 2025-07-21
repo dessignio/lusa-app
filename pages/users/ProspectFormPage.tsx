@@ -202,24 +202,15 @@ const ProspectFormContent: React.FC = () => {
 
 const ProspectFormPage: React.FC = () => {
   const [stripePromise, setStripePromise] = useState<Promise<Stripe | null>>(initialStripePromise);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   useEffect(() => {
     getConnectAccountId().then(({ stripeAccountId }) => {
       setStripePromise(loadStripe("pk_test_51R4Y62RoIWWgoaNu8aBXQRu24UEFe4oNZzSFTv0nOpj1A3vNZbT2bHTAaWiCnj7Hk7YwYfKQQbtH6j2AjuMGfTkb00ch0mkTMb", { stripeAccount: stripeAccountId }));
     });
-
-    createAuditionPaymentIntent({ firstName: ' ', lastName: ' ', email: '' }).then(data => {
-        setClientSecret(data.clientSecret);
-    });
   }, []);
 
-  if (!clientSecret) {
-    return <div className="text-center p-10 text-brand-text-secondary">Loading Payment Form...</div>;
-  }
-
   return (
-    <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
+    <Elements stripe={stripePromise} options={{ appearance: { theme: 'stripe' } }}>
       <ProspectFormContent />
     </Elements>
   );
