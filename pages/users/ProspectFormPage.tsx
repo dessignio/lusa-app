@@ -8,10 +8,10 @@ import Card from '../../components/Card';
 import { UserPlusIcon, PencilIcon, ChevronLeftIcon, DollarSignIcon } from '../../components/icons';
 import { getProspectById, createProspect, updateProspect, getConnectAccountId, createAuditionPaymentIntent } from '../../services/apiService';
 import { showToast } from '../../utils';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe("pk_test_51R4Y62RoIWWgoaNu8aBXQRu24UEFe4oNZzSFTv0nOpj1A3vNZbT2bHTAaWiCnj7Hk7YwYfKQQbtH6j2AjuMGfTkb00ch0mkTMb");
+const initialStripePromise = loadStripe("pk_test_51R4Y62RoIWWgoaNu8aBXQRu24UEFe4oNZzSFTv0nOpj1A3vNZbT2bHTAaWiCnj7Hk7YwYfKQQbtH6j2AjuMGfTkb00ch0mkTMb");
 
 const initialProspectFormData: ProspectFormData = {
     firstName: '',
@@ -110,11 +110,6 @@ const ProspectFormContent: React.FC = () => {
         }
 
         try {
-            const submitResult = await elements.submit();
-            if (submitResult.error) {
-                throw new Error(submitResult.error.message);
-            }
-
             const { clientSecret } = await createAuditionPaymentIntent({
                 name: `${formData.firstName} ${formData.lastName}`,
                 email: formData.email,
@@ -206,28 +201,25 @@ const ProspectFormContent: React.FC = () => {
 };
 
 const ProspectFormPage: React.FC = () => {
-  const [stripeOptions, setStripeOptions] = useState<any>(null);
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null>>(initialStripePromise);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   useEffect(() => {
     getConnectAccountId().then(({ stripeAccountId }) => {
-      setStripeOptions({
-        mode: 'payment' as const,
-        amount: 10000,
-        currency: 'usd',
-        on_behalf_of: stripeAccountId,
-        appearance: {
-          theme: 'stripe' as const,
-        },
-      });
+      setStripePromise(loadStripe("pk_test_51R4Y62RoIWWgoaNu8aBXQRu24UEFe4oNZzSFTv0nOpj1A3vNZbT2bHTAaWiCnj7Hk7YwYfKQQbtH6j2AjuMGfTkb00ch0mkTMb", { stripeAccount: stripeAccountId }));
+    });
+
+    createAuditionPaymentIntent({ firstName: ' ', lastName: ' ', email: '' }).then(data => {
+        setClientSecret(data.clientSecret);
     });
   }, []);
 
-  if (!stripeOptions) {
+  if (!clientSecret) {
     return <div className="text-center p-10 text-brand-text-secondary">Loading Payment Form...</div>;
   }
 
   return (
-    <Elements stripe={stripePromise} options={stripeOptions}>
+    <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
       <ProspectFormContent />
     </Elements>
   );
