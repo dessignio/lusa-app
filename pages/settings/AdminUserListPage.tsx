@@ -56,11 +56,13 @@ const AdminUserListPage: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      console.log("fetchPageData: Calling getAdminUsers and getRoles with studioId:", currentUser.studioId);
-      const [adminUsersData, rolesData] = await Promise.all([
+      console.log("fetchPageData: Calling getAdminUsers with studioId:", currentUser.studioId);
+      const adminUsersData = await getAdminUsers(currentUser.studioId);
+      const rolesData: Role[] = []; // Temporarily hardcoding roles
+      /* const [adminUsersData, rolesData] = await Promise.all([
         getAdminUsers(currentUser.studioId),
         getRoles(currentUser.studioId)
-      ]);
+      ]); */
       console.log("fetchPageData: Received adminUsersData:", adminUsersData);
       console.log("fetchPageData: Received rolesData:", rolesData);
       setAdminUsers(adminUsersData.map(user => ({
