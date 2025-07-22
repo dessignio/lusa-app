@@ -1,23 +1,10 @@
 // src/auth/auth.module.ts
-import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { AdminUserModule } from 'src/admin-user/admin-user.module';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './strategies/jwt.strategy';
-import { RoleModule } from 'src/role/role.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Studio } from 'src/studio/studio.entity';
-
-export const jwtConstants = {
-  // In a real app, this should be in an environment variable and much more complex.
-  secret: 'SUPER_SECRET_KEY_FOR_ADALUSA_ART_PLATFORM_CHANGE_IN_PRODUCTION',
-};
+import { Module, forwardRef } from '@nestjs/common';
+// ... (el resto de las importaciones)
 
 @Module({
   imports: [
-    AdminUserModule,
+    forwardRef(() => AdminUserModule),
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,

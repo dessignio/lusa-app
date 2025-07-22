@@ -93,12 +93,15 @@ export class AdminUserService {
   }
 
   async findOne(id: string, studioId: string): Promise<SafeAdminUser> {
+    console.log(`[AdminUserService] findOne called with id: ${id}, studioId: ${studioId}`);
     const user = await this.adminUserRepository.findOne({
-      where: { id, studio: { id: studioId } },
+      where: { id, studioId },
     });
     if (!user) {
+      console.log(`[AdminUserService] User with id ${id} not found for studioId ${studioId}`);
       throw new NotFoundException(`Admin user with ID "${id}" not found`);
     }
+    console.log(`[AdminUserService] User found: ${user.id}`);
     return this.transformToSafeUser(user);
   }
 
