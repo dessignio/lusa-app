@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { NavLink } from 'react-router-dom'; 
 import Table, { ColumnDefinition } from '../../components/Table';
@@ -34,24 +32,37 @@ const AdminUserListPage: React.FC = () => {
   const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
   const [adminUserToDelete, setAdminUserToDelete] = useState<AdminUser | null>(null);
 
-  const { hasPermission, currentUser } = useAuth();
+  const { hasPermission, currentUser, loading: authLoading } = useAuth();
   const canManage = hasPermission('manage_admin_users');
 
   const fetchPageData = useCallback(async () => {
+    console.log("fetchPageData: Starting fetch.");
+    console.log("fetchPageData: authLoading=", authLoading, "currentUser.studioId=", currentUser?.studioId);
+
+    if (authLoading) {
+      console.log("fetchPageData: authLoading is true, returning.");
+      return; // Don't fetch until auth is loaded
+    }
+
     if (!currentUser?.studioId) {
       const msg = "No se pudo determinar el estudio del usuario.";
+      console.error("fetchPageData: Error -", msg);
       setError(msg);
       showToast(msg, 'error');
       setIsLoading(false);
       return;
     }
+    console.log("fetchPageData: Setting isLoading to true.");
     setIsLoading(true);
     setError(null);
     try {
+      console.log("fetchPageData: Calling getAdminUsers and getRoles with studioId:", currentUser.studioId);
       const [adminUsersData, rolesData] = await Promise.all([
         getAdminUsers(currentUser.studioId),
         getRoles(currentUser.studioId)
       ]);
+      console.log("fetchPageData: Received adminUsersData:", adminUsersData);
+      console.log("fetchPageData: Received rolesData:", rolesData);
       setAdminUsers(adminUsersData.map(user => ({
         ...user,
         roleName: rolesData.find(r => r.id === user.roleId)?.name || 'Unknown Role'
@@ -59,17 +70,23 @@ const AdminUserListPage: React.FC = () => {
       setRoles(rolesData);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to fetch admin users or roles.';
+      console.error("fetchPageData: Error during API call:", err);
       setError(msg);
       showToast(msg, 'error');
-      console.error(err);
     } finally {
+      console.log("fetchPageData: Setting isLoading to false.");
       setIsLoading(false);
     }
-  }, [currentUser]);
+    // ✅ ÚNICO CAMBIO REALIZADO AQUÍ:
+    // Se ajustaron las dependencias a los valores primitivos y estables que realmente se usan,
+    // para evitar el bucle de recarga infinito.
+  }, [authLoading, currentUser?.studioId]);
 
   useEffect(() => {
-    fetchPageData();
-  }, [fetchPageData]);
+    if (!authLoading && currentUser?.studioId) {
+      fetchPageData();
+    }
+  }, [authLoading, currentUser?.studioId]);
 
   const handleDeleteRequest = (adminUser: AdminUser) => {
     setAdminUserToDelete(adminUser);

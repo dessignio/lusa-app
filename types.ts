@@ -241,7 +241,8 @@ export interface AdminUser {
   status: AdminUserStatus;
   createdAt?: string; 
   updatedAt?: string; 
-  stripeAccountId?: string; // Add this line
+  studioId: string; // Add this line
+  stripeAccountId?: string; 
 }
 
 export interface AdminUserFormData extends Omit<AdminUser, 'id' | 'createdAt' | 'updatedAt' | 'roleName'> {
