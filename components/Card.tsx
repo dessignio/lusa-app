@@ -10,13 +10,10 @@ interface CardProps {
   collapsible?: boolean;
   defaultCollapsed?: boolean;
   actions?: React.ReactNode; // For buttons like "Add Task" or "Clear Filters"
-  noContentPadding?: boolean; // New prop to control content padding
 }
 
-const Card: React.FC<CardProps> = ({ title, icon, children, className = '', collapsible = true, defaultCollapsed = false, actions, noContentPadding = false }) => {
+const Card: React.FC<CardProps> = ({ title, icon, children, className = '', collapsible = true, defaultCollapsed = false, actions }) => {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
-
-  const contentPaddingClass = noContentPadding ? '' : 'p-4';
 
   return (
     <div className={`bg-white rounded-lg shadow-md ${className}`}>
@@ -40,7 +37,7 @@ const Card: React.FC<CardProps> = ({ title, icon, children, className = '', coll
         </div>
       </div>
       {!isCollapsed && (
-        <div className={contentPaddingClass}>
+        <div className="p-4">
           {children}
         </div>
       )}

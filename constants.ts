@@ -38,17 +38,11 @@ export const API_ENDPOINTS = {
   STRIPE_STUDENT_BASE: `${API_BASE_URL}/stripe/students`,
   STRIPE_METRICS: `${API_BASE_URL}/stripe/metrics`, 
   STRIPE_CREATE_AUDITION_PAYMENT: `${API_BASE_URL}/stripe/create-audition-payment`,
-  STRIPE_CONNECT_ACCOUNT_STATUS: `${API_BASE_URL}/studios/:studioId/stripe-status`,
-  STRIPE_CONNECT_ACCOUNT_LINK: `${API_BASE_URL}/stripe/connect/account-link`,
-  STRIPE_CONNECT_ACCOUNT: `${API_BASE_URL}/stripe/connect/account`,
 
   // Client Portal Endpoints
   CLIENT_LOGIN: `${API_BASE_URL}/portal/auth/login`,
   CLIENT_PROFILE_ME: `${API_BASE_URL}/portal/me`,
   
-  // Public Endpoints
-  PUBLIC_REGISTER_STUDIO: `${API_BASE_URL}/public/register-studio`,
-
   // Settings Endpoints
   SETTINGS_STRIPE: `${API_BASE_URL}/settings/stripe`,
 };

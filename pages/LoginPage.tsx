@@ -55,18 +55,16 @@ const LoginPage: React.FC = () => {
                 {error}
               </div>
             )}
-            {/* --- CORRECCIÓN AQUÍ --- */}
             <Input
               id="username"
-              label="Email"
-              type="email"
-              value={username} 
+              label="Username"
+              type="text"
+              value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
               disabled={isLoading}
-              autoComplete="email"
+              autoComplete="username"
             />
-            {/* ----------------------- */}
             <Input
               id="password"
               label="Password"

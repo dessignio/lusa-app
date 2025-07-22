@@ -118,10 +118,12 @@ export const getStudentById = (studentId: string): Promise<Student> => {
   return request<Student>(`${API_ENDPOINTS.STUDENTS}/${studentId}`);
 };
 
-export const createStudent = (studentData: StudentFormData, studioId: string): Promise<Student> => {
+export const createStudent = (studentData: StudentFormData): Promise<Student> => {
+  // Password is included in StudentFormData, backend will hash it.
+  // Backend handles derived fields like membershipType, membershipPlanName, renewalDate.
   return request<Student>(API_ENDPOINTS.STUDENTS, {
     method: 'POST',
-    body: JSON.stringify({ ...studentData, studioId }),
+    body: JSON.stringify(studentData),
   });
 };
 
@@ -724,8 +726,7 @@ export const getFinancialMetrics = (): Promise<FinancialMetrics> => {
 
 export const createAuditionPaymentIntent = (prospectData: Pick<ProspectFormData, 'firstName' | 'lastName' | 'email'>): Promise<{ clientSecret: string }> => {
   const payload = {
-    firstName: prospectData.firstName,
-    lastName: prospectData.lastName,
+    name: `${prospectData.firstName} ${prospectData.lastName}`,
     email: prospectData.email,
   };
   return request<{ clientSecret: string }>(API_ENDPOINTS.STRIPE_CREATE_AUDITION_PAYMENT, {
@@ -734,41 +735,7 @@ export const createAuditionPaymentIntent = (prospectData: Pick<ProspectFormData,
   });
 };
 
-// --- Stripe Connect API Functions ---
-
-export const getStripeAccountStatus = (studioId: string): Promise<{
-  status: 'unverified' | 'incomplete' | 'active';
-  details_submitted: boolean;
-  payouts_enabled: boolean;
-  url?: string;
-}> => {
-  const url = API_ENDPOINTS.STRIPE_CONNECT_ACCOUNT_STATUS.replace(':studioId', studioId);
-  return request<{
-    status: 'unverified' | 'incomplete' | 'active';
-    details_submitted: boolean;
-    payouts_enabled: boolean;
-    url?: string;
-  }>(url);
-};
-
-export const createStripeConnectAccount = (): Promise<Studio> => {
-  return request<Studio>(API_ENDPOINTS.STRIPE_CONNECT_ACCOUNT, {
-    method: 'POST',
-  });
-};
-
-export const createStripeAccountLink = (): Promise<{ url: string }> => {
-  return request<{ url: string }>(API_ENDPOINTS.STRIPE_CONNECT_ACCOUNT_LINK, {
-    method: 'POST',
-  });
-};
-
-
-export const getConnectAccountId = async (): Promise<{ stripeAccountId: string }> => {
-  return request<{ stripeAccountId: string }>(`${API_BASE_URL}/stripe/connect/account-id`);
-};
-
-// Prospect Management
+// Prospect API Functions
 export const getProspects = (): Promise<Prospect[]> => {
   return request<Prospect[]>(API_ENDPOINTS.PROSPECTS);
 };

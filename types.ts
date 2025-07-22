@@ -241,8 +241,6 @@ export interface AdminUser {
   status: AdminUserStatus;
   createdAt?: string; 
   updatedAt?: string; 
-  studioId: string; // Add this line
-  stripeAccountId?: string; 
 }
 
 export interface AdminUserFormData extends Omit<AdminUser, 'id' | 'createdAt' | 'updatedAt' | 'roleName'> {
@@ -257,7 +255,7 @@ export interface AdminUserCredentials {
 
 export interface LoginResponse {
   access_token: string;
-  user: AdminUser & { stripeAccountId?: string };
+  user: AdminUser;
   permissions: PermissionKey[];
 }
 
@@ -591,11 +589,4 @@ export interface StripeProductSettings {
   enrollmentPriceId: string;
   auditionProductId: string;
   auditionPriceId: string;
-}
-
-export interface Studio {
-  id: string;
-  name: string;
-  stripeAccountId: string | null;
-  // Add other fields if they are relevant for frontend consumption
 }
