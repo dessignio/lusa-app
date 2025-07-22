@@ -110,6 +110,7 @@ export class AdminUserService {
     const user = await this.adminUserRepository
       .createQueryBuilder('user')
       .addSelect('user.password')
+      .addSelect('user.studioId') // Explicitly select studioId
       .where('user.email = :email', { email })
       .getOne();
     return user || undefined;

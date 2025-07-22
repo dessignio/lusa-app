@@ -168,7 +168,7 @@ const GeneralSettingsPage: React.FC = () => {
     setSubmitError(null);
 
     // Create payload for API, omitting server-generated fields
-    const { id, updatedAt, ...payloadForApi } = formData;
+    const { id, updatedAt, studioId, ...payloadForApi } = formData;
     
     if (logoFile && logoPreview && logoPreview.startsWith('data:image')) {
       payloadForApi.logoUrl = logoPreview; // Send base64 string for simplicity
